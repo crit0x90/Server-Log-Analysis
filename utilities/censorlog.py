@@ -7,6 +7,7 @@
 
 with open('../input/ezproxy_201737.log') as log:
 
+	##############################################
 	#create and populate the lists of ips and names
 	names = []
 	ips = []
@@ -18,6 +19,8 @@ with open('../input/ezproxy_201737.log') as log:
 
 		if(line[2] != '-'):
 			names.append(line[2])
+	##############################################
+
 
 	##############################################
 	#IP Block
@@ -57,17 +60,17 @@ with open('../input/ezproxy_201737.log') as log:
 		userlist.append((k, v))
 
 	userdict = dict(userlist) ###final user mapping
-	print(userdict)
 	#End User Block
 	##############################################
 
-with open('../input/ezproxy_201737.log') as log:
-	with open("output.log", 'w') as output:
+
+with open("output.log", 'w') as output:
+	with open('../input/ezproxy_201737.log') as log:
 		for line in log:
 			line = line.replace(line.split()[0], ipdict[line.split()[0]])
 			if line.split()[2] != '-':
-				print(line.split())
-			if line.split()[2] != '-':
+				name = line.split()[2]
 				line = line.replace(line.split()[2], userdict[line.split()[2]])
+
 			output.write(line)
 			output.write("\n")
