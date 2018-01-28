@@ -5,25 +5,7 @@
 #line.split() @ [0] is the IP address
 #line.split() @ [2] is the username
 
-with open('../input/ezproxy_201737.log') as log:
-
-	##############################################
-	#create and populate the lists of ips and names
-	names = []
-	ips = []
-	for line in log:
-		#print(line.split(), "\n")
-		line = line.split()
-		
-		ips.append(line[0])
-
-		if(line[2] != '-'):
-			names.append(line[2])
-	##############################################
-
-
-	##############################################
-	#IP Block
+def createIPdict(ips):
 	ips = list(set(ips)) #remove duplicates
 
 	#create aliases to represent new IPs
@@ -38,13 +20,9 @@ with open('../input/ezproxy_201737.log') as log:
 	for k, v in zip(ips, ipalias):
 		iplist.append((k, v))
 
-	ipdict = dict(iplist) ###final IP mapping
-	#End IP Block
-	##############################################
+	return dict(iplist) ###final IP mapping
 
-
-	##############################################
-	#User Block
+def createUserDict(names):
 	names = list(set(names)) #remove duplicates
 
 	#create aliases to represent new usernames
@@ -59,18 +37,45 @@ with open('../input/ezproxy_201737.log') as log:
 	for k, v in zip(names, useralias):
 		userlist.append((k, v))
 
-	userdict = dict(userlist) ###final user mapping
-	#End User Block
+	return dict(userlist) 
+
+with open('../input/ezproxy_201737.log') as log:
+
+	##############################################
+	#create and populate the lists of ips and names
+	names = []
+	ips = []
+	counter = 0
+	for line in log:
+		counter += 1
+		if counter == 162913:
+			print(line)
+
+		line = line.split()
+		
+		ips.append(line[0])
+
+		if(line[2] != '-' and 'auto-' not in line[2]):
+			names.append(line[2])
 	##############################################
 
 
+	ipdict = createIPdict(ips)
+	userdict = createUserDict(names) 
+
 with open("output.log", 'w') as output:
 	with open('../input/ezproxy_201737.log') as log:
+		counter = 0
 		for line in log:
+			counter += 1
 			line = line.replace(line.split()[0], ipdict[line.split()[0]])
+
 			if line.split()[2] != '-':
 				name = line.split()[2]
-				line = line.replace(line.split()[2], userdict[line.split()[2]])
+				if name in userdict:
+					line = line.replace(line.split()[2], userdict[line.split()[2]])
+				else:
+					print('Error: Name could not be found, continuing')
 
 			output.write(line)
 			output.write("\n")
