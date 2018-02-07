@@ -1,5 +1,7 @@
 #line.split()[8] -> HTTP status code
-
-with open('../input/ezproxy_201737.log') as file:
+import time
+with open('../input/output.log') as file:
 	for line in file:
-		print(line.split()[8])
+		if line != '\n' and line.split()[2] != '-':
+			print(line.split()[2])
+			time.sleep(2)

@@ -39,18 +39,15 @@ def createUserDict(names):
 
 	return dict(userlist) 
 
-with open('../input/ezproxy_201737.log') as log:
+with open('../input/input.log') as log:
 
 	##############################################
 	#create and populate the lists of ips and names
 	names = []
 	ips = []
-	counter = 0
+	#counter = 0
 	for line in log:
-		counter += 1
-		if counter == 162913:
-			print(line)
-
+		#counter += 1
 		line = line.split()
 		
 		ips.append(line[0])
@@ -64,7 +61,7 @@ with open('../input/ezproxy_201737.log') as log:
 	userdict = createUserDict(names) 
 
 with open("output.log", 'w') as output:
-	with open('../input/ezproxy_201737.log') as log:
+	with open('../input/input.log') as log:
 		counter = 0
 		for line in log:
 			counter += 1
