@@ -6,8 +6,21 @@
 #include "header.h"
 using namespace std;
 
-int main()
+
+vector<string> splitVector(string data)
 {
+	//initialization
+	typedef vector<string> split_vector_type;
+    
+    //splits the string
+    split_vector_type splitVec; 
+    boost::split( splitVec, data, boost::is_any_of(" "), boost::token_compress_on );
+
+    return splitVec;
+}
+
+int main()
+{	
 	/*
 	string lineInput;
 	while (getline(cin,lineInput)) 
@@ -16,17 +29,10 @@ int main()
 	}
 	*/
 
-	/*
-	MAKE THIS INTO A FUNCTION
-
-	//initialization
-	typedef vector<string> split_vector_type;
 	string str1 = "IP1293 [-] - [04/Sep/2017:00:13:49 -0700]"; //sample string for testing
-	string time = "garbage";
-    
-    //splits the string
-    split_vector_type splitVec; 
-    boost::split( splitVec, str1, boost::is_any_of(" "), boost::token_compress_on );
+	string time = "";
+
+	vector<string> splitVec = splitVector(str1);
 
     //gets time from string in hours:minutes:seconds format
     time =  getTime(splitVec.at(3));
@@ -37,12 +43,11 @@ int main()
     int minutes = getMinutes(time);
 
     cout << hours << ", " << minutes << endl;
-	*/
-
-
+	
 	hourRing* ring_chain = new hourRing;
 
 	ring_chain->mainring[0].datalist[0].append("cat");
     cout << ring_chain->mainring[0].datalist[0].head->name << endl;
+    
 	return 0;
 }
