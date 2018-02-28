@@ -2,21 +2,35 @@
 #define HEADER_H
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class Userdata {
 public:
+	Userdata();
+	Userdata(string name, string IP);
+	~Userdata() {}
+
 	string username;
 	string IPaddress;
+	Userdata* IP_next;
+	Userdata* user_next;
+	Userdata* time_next;
+	Userdata* free_next;
 private:
 protected:
 };
 
-class Timeslice {
+class Timeframe {
 public:
+	Timeframe();
+	~Timeframe() {}
 	Userdata* timeArray;
+	Userdata* freelist_head;
 private:
+	Userdata getNode(string name, string IP);
+	void freeNode(int index);
 protected:
 };
 
