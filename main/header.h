@@ -5,52 +5,39 @@
 
 using namespace std;
 
-class ringData {
+class Userdata {
 public:
-	ringData();
-	~ringData() {}
-	string name;
-	ringData* next;
+	string username;
+	string IPaddress;
 private:
 protected:
 };
 
-
-class dataList {
+class Timeslice {
 public:
-	dataList();
-	~dataList() {}
-	void append(string name);
-	ringData* curr;
-	ringData* head;
-	ringData* tail;
+	Userdata* timeArray;
 private:
 protected:
 };
-
-
-class minuteRing {
-public:
-	minuteRing();
-	~minuteRing() {}
-	dataList* datalist;
-private:
-protected:
-};
-
-class hourRing {
-public:
-	hourRing();
-	~hourRing() {}
-	minuteRing* mainring;
-private:
-protected:
-};
-
 
 //utility functions
+
+//returns hours given a timestamp
 int getHours(string time);
+
+//returns minutes given a timestamp
 int getMinutes(string time);
+
+//returns seconds given a timestamp
+int getSeconds(string time);
+
+//returns an isolated timestamp
 string getTime(string in);
+
+//returns an index given a raw string
+int getIndex(string raw_line);
+
+//splits a string apart at the spaces and returns a vector
+vector<string> splitVector(string data);
 
 #endif
