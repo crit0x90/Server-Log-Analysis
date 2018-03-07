@@ -75,7 +75,6 @@ int getIndex(string raw_line)
 
     //gets time from string in hours:minutes:seconds format
     string time =  getTime(splitVec.at(3));
-    cout << "Time: " << time << endl;
 
 	//extract values for hours and minutes and convert to int to be used as indexes
     int hours   = getHours(time);
@@ -83,6 +82,29 @@ int getIndex(string raw_line)
     int seconds = getSeconds(time);
 
     int index = ((hours * 3600) + (minutes * 60) + seconds);
+    cout << index << endl;
 
 	return index;
+}
+
+string getName(string raw_line)
+{
+	vector<string> splitVec = splitVector(raw_line);
+
+    //gets name from string 
+    string name =  splitVec.at(2);
+    cout << name << endl;
+
+    return name;
+}
+
+string getIP(string raw_line)
+{
+	vector<string> splitVec = splitVector(raw_line);
+
+    //gets name from string 
+    string IP =  splitVec.at(0);
+    cout << IP << endl;
+
+    return IP;
 }

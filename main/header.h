@@ -26,11 +26,12 @@ class Timeframe {
 public:
 	Timeframe();
 	~Timeframe() {}
+	void appendNode(string request);
+	void expireFrame(int index);
+private:
 	Userdata* timeArray;
 	Userdata* freelist_head;
-private:
-	Userdata getNode(string name, string IP);
-	void freeNode(int index);
+	int currentIndex;
 protected:
 };
 
@@ -48,10 +49,16 @@ int getSeconds(string time);
 //returns an isolated timestamp
 string getTime(string in);
 
-//returns an index given a raw string
+//returns an index given a raw input string
 int getIndex(string raw_line);
 
 //splits a string apart at the spaces and returns a vector
 vector<string> splitVector(string data);
+
+//returns a username given a raw input string
+string getName(string raw_line);
+
+//returns an IP address given a raw input string
+string getIP(string raw_line);
 
 #endif
