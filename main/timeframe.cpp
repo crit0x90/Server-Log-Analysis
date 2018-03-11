@@ -10,11 +10,13 @@ Timeframe::Timeframe()
 
 	freelist_head  = new Userdata;
 	Userdata* curr = freelist_head;
+	currentIndex = 0;
 
 	//start the free list as 20,000 nodes
 	for(int i = 0; i < 20000; i++)
 	{
 		curr->free_next = new Userdata;
+		curr = curr->free_next;
 	}
 }
 
@@ -24,13 +26,21 @@ void Timeframe::appendNode(string request)
 	int index = getIndex(request);
 	string IP = getIP(request); 
 	string name = getName(request);
+	/*
+	cout << request << endl;
+	cout << "index: " << index << endl;
+	cout << "IP: " << IP << endl;
+	cout << "name: " << name << endl;
+	*/
 
 	//check if we need to expire nodes
 	if(index != currentIndex)
 	{
 		if(index > currentIndex)
 		{
-			for(int i = currentIndex; i <= index; i++)
+			//expire everything between what we just inserted
+			//and what we want to insert
+			for(int i = currentIndex+1; i <= index; i++)
 			{
 				expireFrame(i);
 			}
@@ -49,6 +59,8 @@ void Timeframe::appendNode(string request)
 			}
 		}
 	}
+
+	currentIndex = index;
 	
 	//if free list is empty then make a new node, 
 	//else pull a node from the freelist
@@ -60,8 +72,7 @@ void Timeframe::appendNode(string request)
 		//else use seperate chaining
 		if(timeArray[index].time_next == nullptr)
 		{
-			cout << "yeet";
-			//timeArray[index].time_next = node;
+			timeArray[index].time_next = node;
 		}
 		else
 		{
@@ -114,8 +125,13 @@ void Timeframe::expireFrame(int index)
 	{
 		//not empty case
 		Userdata* curr = &(timeArray[index]);
+		//This is tricky here, we start at a non-node so
+		//even though it seems like we are missing the 
+		//one node case we are not
 		while(curr->time_next != nullptr)
 		{
+			Userdata* nextNode = curr->time_next; //placeholder
+
 			curr->username  = "NULLPTR";
 			curr->IPaddress = "NULLPTR";
 			curr->IP_next   = nullptr;
@@ -123,13 +139,29 @@ void Timeframe::expireFrame(int index)
 			curr->time_next = nullptr;
 			curr->free_next = freelist_head;
 			freelist_head   = curr;
+			curr = nextNode;
 		}
-		curr->username  = "NULLPTR";
-		curr->IPaddress = "NULLPTR";
-		curr->IP_next   = nullptr;
-		curr->user_next = nullptr;
-		curr->time_next = nullptr;
-		curr->free_next = freelist_head;
-		freelist_head   = curr;
+	}
+}
+
+int Timeframe::lenFreeList()
+{
+	Userdata* curr = freelist_head;
+
+	int counter = 0;
+
+	while(curr->free_next != nullptr)
+	{
+		curr = curr->free_next;
+		counter++;
+	}
+	return counter;
+}
+
+void Timeframe::clearAllFrames()
+{
+	for(int i = 0; i < 86400; i++)
+	{
+		expireFrame(i);
 	}
 }

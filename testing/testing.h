@@ -6,6 +6,10 @@
 
 using namespace std;
 
+bool freeListTest();
+
+bool loopAroundTest();
+
 
 
 

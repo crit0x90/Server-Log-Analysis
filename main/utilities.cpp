@@ -82,7 +82,6 @@ int getIndex(string raw_line)
     int seconds = getSeconds(time);
 
     int index = ((hours * 3600) + (minutes * 60) + seconds);
-    cout << index << endl;
 
 	return index;
 }
@@ -93,7 +92,6 @@ string getName(string raw_line)
 
     //gets name from string 
     string name =  splitVec.at(2);
-    cout << name << endl;
 
     return name;
 }
@@ -104,7 +102,6 @@ string getIP(string raw_line)
 
     //gets name from string 
     string IP =  splitVec.at(0);
-    cout << IP << endl;
 
     return IP;
 }

@@ -28,6 +28,8 @@ public:
 	~Timeframe() {}
 	void appendNode(string request);
 	void expireFrame(int index);
+	int lenFreeList(); //for testing
+	void clearAllFrames();
 private:
 	Userdata* timeArray;
 	Userdata* freelist_head;
