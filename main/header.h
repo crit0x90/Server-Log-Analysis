@@ -34,6 +34,7 @@ private:
 	Userdata* timeArray;
 	Userdata* freelist_head;
 	int currentIndex;
+	int currNumRequests; //number of requests in current time slice
 protected:
 };
 

@@ -12,7 +12,15 @@ int main()
 
     Timeframe* timeframe = new Timeframe;
 
-    freeListTest();
+    string lineInput;
+    int counter = 0;
+
+    while (getline(cin,lineInput)) 
+	{
+		counter++;
+  		timeframe->appendNode(lineInput);
+  		cout << counter << endl;
+	}
 
 	return 0;
 }

@@ -7,4 +7,5 @@ with open(sys.argv[1]) as file:
 		if line != '\n' and line.split()[2] != '-':
 			sys.stdout.write(line)
 			sys.stdout.flush()
-			#time.sleep(0.1)
+			#time.sleep(0.05)
+#hang at 57712

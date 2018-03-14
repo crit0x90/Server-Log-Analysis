@@ -16,14 +16,16 @@ bool freeListTest()
 	string lineInput;
 	int starting_length = timeframe->lenFreeList();
   	int counter = 0;
+  	bool status = false;
 	while (getline(cin,lineInput)) 
 	{
 		counter++;
   		timeframe->appendNode(lineInput);
 	}
+
 	timeframe->clearAllFrames();
 	int ending_length = timeframe->lenFreeList();
-	bool status = (starting_length == ending_length);
+	(starting_length == ending_length) ? status = true : status = false;
   	cout << "Starting length of free list: " << starting_length << endl;
 	cout << "Number of nodes inserted: " << counter << endl;
 	cout << "Ending length of free list: " << ending_length << endl;
@@ -34,5 +36,26 @@ bool freeListTest()
 
 bool loopAroundTest()
 {
-	
+	//The purpose of this test is to ensure that that 
+	//when the program reaches the end of the data 
+	//structure it successfully clears all of the old 
+	//entries that it is supposed to
+	Timeframe* timeframe = new Timeframe;
+
+	string lineInput;
+	int starting_length = timeframe->lenFreeList();
+  	int counter = 0;
+	while (getline(cin,lineInput)) 
+	{
+		counter++;
+  		timeframe->appendNode(lineInput);
+	}
+	int ending_length = timeframe->lenFreeList();
+	bool status = (starting_length == ending_length+1);
+	cout << "Starting length of free list: " << starting_length << endl;
+	cout << "Number of nodes inserted: " << counter << endl;
+	cout << "Ending length of free list: " << ending_length << endl;
+	cout << "Free list test pass: " << status << endl;
+
+	return status;
 }

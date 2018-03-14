@@ -11,6 +11,7 @@ Timeframe::Timeframe()
 	freelist_head  = new Userdata;
 	Userdata* curr = freelist_head;
 	currentIndex = 0;
+	currNumRequests = 0;
 
 	//start the free list as 20,000 nodes
 	for(int i = 0; i < 20000; i++)
@@ -36,6 +37,7 @@ void Timeframe::appendNode(string request)
 	//check if we need to expire nodes
 	if(index != currentIndex)
 	{
+		currNumRequests = 0; //in new time slice so reset
 		if(index > currentIndex)
 		{
 			//expire everything between what we just inserted
@@ -59,7 +61,7 @@ void Timeframe::appendNode(string request)
 			}
 		}
 	}
-
+	
 	currentIndex = index;
 	
 	//if free list is empty then make a new node, 
@@ -88,7 +90,7 @@ void Timeframe::appendNode(string request)
 	{
 		//if there is an element in the array slot then insert,
 		//else use seperate chaining
-
+		currNumRequests++;
 		Userdata* node = freelist_head;
 		if(freelist_head->free_next != nullptr)
 		{
