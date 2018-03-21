@@ -12,6 +12,13 @@ public:
 	Userdata(string name, string IP);
 	~Userdata() {}
 
+	//number of requests in current time slice, only to be used by 
+	//the node that is in the timeArray
+	int floodCounter; //for tracking request flooding
+	int IPcounter; //for users
+	int userCounter; //for IPs
+	vector<string> associatedIPs;
+	vector<string> associatedUsers;
 	string username;
 	string IPaddress;
 	Userdata* IP_next;
@@ -30,11 +37,22 @@ public:
 	void expireFrame(int index);
 	int lenFreeList(); //for testing
 	void clearAllFrames();
+	void alertAdministrator(string reason, int index);
 private:
 	Userdata* timeArray;
 	Userdata* freelist_head;
-	int currentIndex;
-	int currNumRequests; //number of requests in current time slice
+	int currentIndex; //where we are currently operating in the timeframe DS
+protected:
+};
+
+class Userhash {
+public:
+	Userhash();
+	~Userhash() {}
+	void hashUser(string username);
+private:
+	Userdata* userhash;
+	int hashSize;
 protected:
 };
 

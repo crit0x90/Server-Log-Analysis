@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <unistd.h>
 #include "header.h"
 
 using namespace std;
@@ -11,7 +12,6 @@ Timeframe::Timeframe()
 	freelist_head  = new Userdata;
 	Userdata* curr = freelist_head;
 	currentIndex = 0;
-	currNumRequests = 0;
 
 	//start the free list as 20,000 nodes
 	for(int i = 0; i < 20000; i++)
@@ -24,7 +24,7 @@ Timeframe::Timeframe()
 void Timeframe::appendNode(string request)
 {
 
-	int index = getIndex(request);
+	int newindex = getIndex(request);
 	string IP = getIP(request); 
 	string name = getName(request);
 	/*
@@ -35,63 +35,65 @@ void Timeframe::appendNode(string request)
 	*/
 
 	//check if we need to expire nodes
-	if(index != currentIndex)
+	if(newindex != currentIndex)
 	{
-		currNumRequests = 0; //in new time slice so reset
-		if(index > currentIndex)
+		if(newindex > currentIndex)
 		{
 			//expire everything between what we just inserted
 			//and what we want to insert
-			for(int i = currentIndex+1; i <= index; i++)
+			for(int i = currentIndex+1; i <= newindex; i++)
 			{
 				expireFrame(i);
 			}
 		}
 		else
 		{
-			//we need to loop back around the ring in this case
+			//we need to loop back around the ring in this case 
+			//(new day has started)
 			for(int i = currentIndex; i <= 86399; i++)
 			{
 				expireFrame(i);
 			}
 
-			for(int i = 0; i <= index; i++)
+			for(int i = 0; i <= newindex; i++)
 			{
 				expireFrame(i);
 			}
 		}
 	}
 	
-	currentIndex = index;
+	currentIndex = newindex;
 	
 	//if free list is empty then make a new node, 
 	//else pull a node from the freelist
-	if(freelist_head == nullptr)
+	if(freelist_head->free_next == nullptr)
 	{
 		Userdata* node = new Userdata(name, IP);
 		
 		//if there is an element in the array slot then insert,
 		//else use seperate chaining
-		if(timeArray[index].time_next == nullptr)
+		if(timeArray[newindex].time_next == nullptr)
 		{
-			timeArray[index].time_next = node;
+			timeArray[newindex].time_next = node;
 		}
 		else
 		{
-			Userdata* curr = &(timeArray[index]);
+			Userdata* curr = &(timeArray[newindex]);
 			while(curr->time_next != nullptr)
 			{
 				curr = curr->time_next;
 			}
 			curr->time_next = node;
 		}
+		timeArray[newindex].floodCounter++;
 	}
 	else
 	{
 		//if there is an element in the array slot then insert,
 		//else use seperate chaining
-		currNumRequests++;
 		Userdata* node = freelist_head;
+
+		//multiple nodes or single node on free list
 		if(freelist_head->free_next != nullptr)
 		{
 			freelist_head = freelist_head->free_next;
@@ -101,19 +103,28 @@ void Timeframe::appendNode(string request)
 			freelist_head = nullptr;
 		}
 
-		if(timeArray[index].time_next == nullptr)
+		//no nodes in slice or there are nodes in slice
+		if(timeArray[newindex].time_next == nullptr)
 		{
-			timeArray[index].time_next = node;
+			timeArray[newindex].time_next = node;
 		}
 		else
 		{
-			Userdata* curr = &(timeArray[index]);
+			Userdata* curr = &(timeArray[newindex]);
 			while(curr->time_next != nullptr)
 			{
+				//cout << "Stuck at index" << newindex << "[appendNode()]" << endl;
 				curr = curr->time_next;
 			}
 			curr->time_next = node;
 		}
+		timeArray[newindex].floodCounter++;
+	}
+	//cout << "Flood counter at: " << timeArray[newindex].floodCounter << endl;
+	if(timeArray[newindex].floodCounter > 10)
+	{
+		//we will want to make this check for a single user in the time frame in the future
+		alertAdministrator("Request flood", newindex);
 	}
 }
 
@@ -125,8 +136,11 @@ void Timeframe::expireFrame(int index)
 	}
 	else 
 	{
+		cout << "Expiring data" << endl;
 		//not empty case
+		timeArray[index].floodCounter = 0;
 		Userdata* curr = &(timeArray[index]);
+
 		//This is tricky here, we start at a non-node so
 		//even though it seems like we are missing the 
 		//one node case we are not
@@ -143,6 +157,16 @@ void Timeframe::expireFrame(int index)
 			freelist_head   = curr;
 			curr = nextNode;
 		}
+		//so that the last node isn't orphaned
+		curr->username  = "NULLPTR";
+		curr->IPaddress = "NULLPTR";
+		curr->IP_next   = nullptr;
+		curr->user_next = nullptr;
+		curr->time_next = nullptr;
+		curr->free_next = freelist_head;
+		freelist_head   = curr;
+
+		timeArray[index].time_next = nullptr;
 	}
 }
 
@@ -166,4 +190,10 @@ void Timeframe::clearAllFrames()
 	{
 		expireFrame(i);
 	}
+}
+
+void Timeframe::alertAdministrator(string reason, int index)
+{
+	cout << "Alerting the administrator because " << reason << " at timeindex " << index << endl;
+	sleep(3);
 }
