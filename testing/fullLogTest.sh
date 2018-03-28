@@ -1,9 +1,9 @@
 #!/bin/bash
 
-g++ -o drive testing.cpp ../main/*.cpp
+g++ -o drive ../main/*.cpp -std=c++11
 
 echo '-------------------------------------------------'
 echo '#> TEST RESULTS'
-python ../utilities/printer.py ../input/input.log | ./drive
+python ../utilities/printer.py testlogs/test1.log | ./drive
 echo '#> TEST COMPLETE'
 echo '-------------------------------------------------'

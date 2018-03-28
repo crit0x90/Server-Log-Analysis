@@ -2,22 +2,25 @@
 #include <string>
 #include <vector>
 #include "header.h"
-#include "../testing/testing.h"
 using namespace std;
 
-int main()
-{	
-    Timeframe* timeframe = new Timeframe;
+void start(int tf_size)
+{
+    Timeframe* timeframe = new Timeframe(tf_size);
 
     string lineInput;
     int counter = 0;
-
+    int index = 0;
     while (getline(cin,lineInput)) 
-  	{
-    		counter++;
-    		timeframe->appendNode(lineInput);
-    		//cout << counter << endl;
-  	}
+    {
+        timeframe->insertData(lineInput);
+        counter++;
+    }
+}
 
-	return 0;
+int main()
+{	
+    start(30);
+
+    return 0;
 }

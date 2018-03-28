@@ -59,32 +59,6 @@ IP551 [-] - [04/Sep/2017:00:07:44 -0700] "GET https://hmlproxy.lib.csufresno.edu
 
 IP551 [-] - [04/Sep/2017:00:07:45 -0700] "GET https://hmlproxy.lib.csufresno.edu:443/favicon.ico HTTP/1.1" 404 0 "MobileSafari/602.1 CFNetwork/811.5.4 Darwin/16.7.0"
 
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:16 -0700] "POST https://search.proquest.com:443/docview.ebraryrelateddocs.display?site=socabs&t:ac=1812464582/Record/F0515B930F2244CCPQ/55 HTTP/1.1" 200 5481 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
+IP551 [-] - [04/Sep/2017:00:07:44 -0700] "GET https://hmlproxy.lib.csufresno.edu:443/favicon.ico HTTP/1.1" 404 0 "MobileSafari/602.1 CFNetwork/811.5.4 Darwin/16.7.0"
 
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:16 -0700] "POST https://search.proquest.com:443/docview.headertitle:imagecheck?site=socabs&t:ac=1812464582/Record/F0515B930F2244CCPQ/55 HTTP/1.1" 200 216 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
 
-IP938 [yD6HM57AJBrhNJC] user1459 [04/Sep/2017:19:02:16 -0700] "GET http://widgets.ebscohost.com:80/prod/simplekey/plu.mx/hidePlum.js HTTP/1.1" 200 1474 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
-
-IP7972 [tlGVVPZt8gOapBB] user239 [04/Sep/2017:19:02:17 -0700] "GET http://web.b.ebscohost.com:80/ehost/resultsadvanced?vid=5&sid=7495236c-a813-4c1e-b2f2-70374c0c5877%40sessionmgr101&bquery=vietnamese+education&bdata=JmRiPWVoaCZ0eXBlPTEmc2l0ZT1laG9zdC1saXZl HTTP/1.1" 200 403456 "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"
-
-IP7972 [tlGVVPZt8gOapBB] user239 [04/Sep/2017:19:02:19 -0700] "GET http://web.b.ebscohost.com:80/ehost/ImportWidget/ImportWidgetContent?wdgtId=328337&vid=5&sid=7495236c-a813-4c1e-b2f2-70374c0c5877@sessionmgr101 HTTP/1.1" 200 870 "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"
-
-IP7972 [tlGVVPZt8gOapBB] user239 [04/Sep/2017:19:02:19 -0700] "GET http://web.b.ebscohost.com:80/truesightedgemarker/!crd_prm!.!cm?crd_ver=0.9.5&crd_rnd=490164&crd_cnt=0.01&crd_tpb=1504576938303&crd_olt=1968 HTTP/1.1" 200 410 "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"
-
-IP7972 [tlGVVPZt8gOapBB] user239 [04/Sep/2017:19:02:19 -0700] "GET http://web.b.ebscohost.com:80/_avirum_/AVIi262759AE05AB4827AVIl0AVIr0/rum.js HTTP/1.1" 200 7038 "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:20 -0700] "GET https://search.proquest.com:443/socabs/docview/1812414559/fulltextPDF/F0515B930F2244CCPQ/55?accountid=10349 HTTP/1.1" 200 88959 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:20 -0700] "GET https://search.proquest.com:443/assets/r20171.7.0.283.1928/ctx/images/icons/bullets_sprite.png HTTP/1.1" 200 2406 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:20 -0700] "GET https://search.proquest.com:443/socabs/ExternalImage/JKGpK8lAPGkKP@pCA5sE5CtAOAP6fQHcky6SifKN7Nyj817xx86uHKsispvixoCVjJFYlY4xe5HK7EUU8A@VFA== HTTP/1.1" 200 6322 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:21 -0700] "POST https://search.proquest.com:443/pagepdf.ebraryrelateddocs.display?site=socabs&t:ac=1812414559/fulltextPDF/F0515B930F2244CCPQ/55 HTTP/1.1" 200 5511 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP8295 [nts7SCeWTOqgrce] user105 [04/Sep/2017:19:02:21 -0700] "POST http://www.jstor.org:80/tc/verify?origin=%2Fstable%2Fpdf%2F24997633.pdf%3Frefreqid%3Dexcelsior%253Adcd1981129b134f684a814a559861066 HTTP/1.1" 302 439 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:21 -0700] "POST https://search.proquest.com:443/pagepdf.headertitle:imagecheck?site=socabs&t:ac=1812414559/fulltextPDF/F0515B930F2244CCPQ/55 HTTP/1.1" 200 216 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP8334 [gq0ae6Cr6uS5gjF] user1188 [04/Sep/2017:19:02:22 -0700] "GET https://media.proquest.com:443/media/pq/classic/doc/4151739681/fmt/pi/rep/NONE?hl=&cit%3Aauth=Chaney%2C+Cassandra&cit%3Atitle=Institutional+Racism%3A+Perspectives+on+the+Department+of+Justice%27s+...&cit%3Apub=Western+Journal+of+Black+Studies&cit%3Avol=39&cit%3Aiss=4&cit%3Apg=311&cit%3Adate=Winter+2015&ic=true&cit%3Aprod=Sociological+Abstracts&_a=ChgyMDE3MDkwNTAxNTI0Nzk0OToxMDU1NjUSBjEwNjE4NxoKT05FX1NFQVJDSCIMMTI5LjguMjQyLjY3KgU0NzcwOTIKMTgxMjQxNDU1OToNRG9jdW1lbnRJbWFnZUIBMFIGT25saW5lWgJGVGIDUEZUagoyMDE1LzEyLzAxcgoyMDE2LzAzLzMxegCCASlQLTEwMDY3MzAtMTAwNDMtQ1VTVE9NRVItMTAwMDAwMTgtMTA3OTIyOJIBBk9ubGluZcoBd01vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzEwXzUpIEFwcGxlV2ViS2l0LzYwMi4zLjEyIChLSFRNTCwgbGlrZSBHZWNrbykgVmVyc2lvbi8xMC4wLjIgU2FmYXJpLzYwMi4zLjEy0gESU2Nob2xhcmx5IEpvdXJuYWxzmgIHUHJlUGFpZKoCKE9TOkVNUy1QZGZEb2NWaWV3QmFzZS1nZXRNZWRpYVVybEZvckl0ZW3KAg9BcnRpY2xlfEZlYXR1cmXSAgFZ4gIA8gIA&_s=3vyV5bsnbk73480ln8g3Qh%2FN3Ws%3D HTTP/1.1" 200 1262424 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/602.3.12 (KHTML, like Gecko) Version/10.0.2 Safari/602.3.12"
-
-IP7806 [-] - [04/Sep/2017:19:02:22 -0700] "GET https://hmlproxy.lib.csufresno.edu:443/login?url=http://proquest.umi.com/pqdweb?SQ=%28LSU%28%7BIMMIGRATION+POLICY%7D%29+AND+LSU%28%7BFOREIGN+LABOR%7D%29%29&DBId=-1&date=ALL&onDate=&beforeDate=&afterDate=&fromDate=&toDate=&ShowFT=1&pubtitle=&author=&FT=0&AT=any&revType=review&revPos=all&STYPE=all&sortby=REVERSE_CHRON&RQT=305&querySyntax=PQ&searchInterface=1&moreOptState=CLOSED&TS=1274416015&h_pubtitle=&h_pmid=&clientId=17845&JSEnabled=1 HTTP/1.1" 200 12294 "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.0 Mobile/14G60 Safari/602.1"

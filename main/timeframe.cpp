@@ -7,11 +7,16 @@ using namespace std;
 
 Timeframe::Timeframe()
 {
-	timeArray = new Userdata[86400];
+	//default timeframe size is one day
+	timeFrameSize = 86400;
+	timeArray = new Userdata[timeFrameSize];
 
 	freelist_head  = new Userdata;
 	Userdata* curr = freelist_head;
 	currentIndex = 0;
+	cleanupLength = 20;
+	//default cleanup size is 20 seconds
+	cleanupIndex = timeFrameSize - 20; 
 
 	//start the free list as 20,000 nodes
 	for(int i = 0; i < 20000; i++)
@@ -21,179 +26,167 @@ Timeframe::Timeframe()
 	}
 }
 
-void Timeframe::appendNode(string request)
+Timeframe::Timeframe(int size)
 {
+	//default timeframe size is one day
+	timeFrameSize = 86400;
+	timeArray = new Userdata[timeFrameSize];
 
-	int newindex = getIndex(request);
-	string IP = getIP(request); 
-	string name = getName(request);
-	/*
-	cout << request << endl;
-	cout << "index: " << index << endl;
-	cout << "IP: " << IP << endl;
-	cout << "name: " << name << endl;
-	*/
+	freelist_head  = new Userdata;
+	Userdata* curr = freelist_head;
+	currentIndex = 0;
+	cleanupLength = size;
+	//the length of time before cleanup is called 
+	//is represented by maxsize - size
+	cleanupIndex = timeFrameSize - cleanupLength;
 
-	//check if we need to expire nodes
-	if(newindex != currentIndex)
+	//start the free list as 20,000 nodes
+	for(int i = 0; i < 20000; i++)
 	{
-		if(newindex > currentIndex)
-		{
-			//expire everything between what we just inserted
-			//and what we want to insert
-			for(int i = currentIndex+1; i <= newindex; i++)
-			{
-				expireFrame(i);
-			}
-		}
-		else
-		{
-			//we need to loop back around the ring in this case 
-			//(new day has started)
-			for(int i = currentIndex; i <= 86399; i++)
-			{
-				expireFrame(i);
-			}
-
-			for(int i = 0; i <= newindex; i++)
-			{
-				expireFrame(i);
-			}
-		}
+		curr->free_next = new Userdata;
+		curr = curr->free_next;
 	}
-	
-	currentIndex = newindex;
-	
-	//if free list is empty then make a new node, 
-	//else pull a node from the freelist
-	if(freelist_head->free_next == nullptr)
+}
+
+void Timeframe::insertData(string raw_line)
+{
+	int index = getIndex(raw_line);
+	cout << "Inserting data at frame index " << index << endl;
+
+	if(index != currentIndex)
 	{
-		Userdata* node = new Userdata(name, IP);
-		
-		//if there is an element in the array slot then insert,
-		//else use seperate chaining
-		if(timeArray[newindex].time_next == nullptr)
-		{
-			timeArray[newindex].time_next = node;
-		}
-		else
-		{
-			Userdata* curr = &(timeArray[newindex]);
-			while(curr->time_next != nullptr)
-			{
-				curr = curr->time_next;
-			}
-			curr->time_next = node;
-		}
-		timeArray[newindex].floodCounter++;
+		currentIndex = index;
+		cleanup();
+		timeArray[index].time_next = getNode(raw_line);
 	}
 	else
 	{
-		//if there is an element in the array slot then insert,
-		//else use seperate chaining
-		Userdata* node = freelist_head;
+		//since we are on this branch we know that the
+		//current index has not changed since the last
+		//time that we went to insert a node so we can
+		//infer that there is already a node at the 
+		//current index
+		Userdata* curr = timeArray[index].time_next;
 
-		//multiple nodes or single node on free list
-		if(freelist_head->free_next != nullptr)
+		while(curr->time_next != nullptr)
 		{
-			freelist_head = freelist_head->free_next;
-		}
-		else
-		{
-			freelist_head = nullptr;
+			curr = curr->time_next;
 		}
 
-		//no nodes in slice or there are nodes in slice
-		if(timeArray[newindex].time_next == nullptr)
-		{
-			timeArray[newindex].time_next = node;
-		}
-		else
-		{
-			Userdata* curr = &(timeArray[newindex]);
-			while(curr->time_next != nullptr)
-			{
-				//cout << "Stuck at index" << newindex << "[appendNode()]" << endl;
-				curr = curr->time_next;
-			}
-			curr->time_next = node;
-		}
-		timeArray[newindex].floodCounter++;
+		curr->time_next = getNode(raw_line);
 	}
-	//cout << "Flood counter at: " << timeArray[newindex].floodCounter << endl;
-	if(timeArray[newindex].floodCounter > 10)
+}
+
+void Timeframe::cleanup()
+{
+	//The purpose of this function is to make the cleanupIndex
+	//"catch up" to the current index whenever there is a change 
+	//in the current index
+	int oldCleanupIndex = cleanupIndex;
+	if(cleanupIndex < currentIndex)
 	{
-		//we will want to make this check for a single user in the time frame in the future
-		alertAdministrator("Request flood", newindex);
+		while(cleanupIndex < (currentIndex - cleanupLength))
+		{
+			expireFrame(cleanupIndex);
+			cleanupIndex++;
+		}
+	}
+	else
+	{
+		//this represents the case that the current index
+		//has looped back around the data structure
+
+		//total distance between currentIndex and cleanupIndex
+		int totalDistance = currentIndex + (timeFrameSize - cleanupIndex);
+		int distanceToTravel = totalDistance - cleanupLength;
+
+		while(distanceToTravel > 0)
+		{
+			if(cleanupIndex == 86399)
+			{
+				expireFrame(cleanupIndex);
+				cleanupIndex = 0;
+				distanceToTravel--;
+			}
+			else
+			{
+				expireFrame(cleanupIndex);
+				cleanupIndex++;
+				distanceToTravel--;
+			}
+		}
 	}
 }
 
 void Timeframe::expireFrame(int index)
 {
+	cout << "Expiring frame at index " << index << endl;
+
 	if(timeArray[index].time_next == nullptr)
 	{
-		return;
+		//empty case - nothing is stored at this index
 	}
-	else 
+	else
 	{
-		cout << "Expiring data" << endl;
-		//not empty case
-		timeArray[index].floodCounter = 0;
-		Userdata* curr = &(timeArray[index]);
+		Userdata* curr = timeArray[index].time_next; //curr == first node in list
+		timeArray[index].time_next = nullptr; //point the array pointer back to null
+		Userdata* placeholder = nullptr;
 
-		//This is tricky here, we start at a non-node so
-		//even though it seems like we are missing the 
-		//one node case we are not
 		while(curr->time_next != nullptr)
 		{
-			Userdata* nextNode = curr->time_next; //placeholder
-
-			curr->username  = "NULLPTR";
-			curr->IPaddress = "NULLPTR";
-			curr->IP_next   = nullptr;
-			curr->user_next = nullptr;
-			curr->time_next = nullptr;
-			curr->free_next = freelist_head;
-			freelist_head   = curr;
-			curr = nextNode;
+			cout << "Old value: " << curr->username << endl;
+			placeholder = curr->time_next;
+			expireNode(curr);
+			freelist_head = curr;
+			curr = placeholder;
+			cout << "New value: " << curr->username << endl;
 		}
-		//so that the last node isn't orphaned
-		curr->username  = "NULLPTR";
-		curr->IPaddress = "NULLPTR";
-		curr->IP_next   = nullptr;
-		curr->user_next = nullptr;
-		curr->time_next = nullptr;
-		curr->free_next = freelist_head;
-		freelist_head   = curr;
-
-		timeArray[index].time_next = nullptr;
+		//dont forget the last node
+		expireNode(curr);
+		freelist_head = curr;
 	}
 }
 
-int Timeframe::lenFreeList()
+void Timeframe::expireNode(Userdata& node)
 {
-	Userdata* curr = freelist_head;
-
-	int counter = 0;
-
-	while(curr->free_next != nullptr)
-	{
-		curr = curr->free_next;
-		counter++;
-	}
-	return counter;
-}
-
-void Timeframe::clearAllFrames()
-{
-	for(int i = 0; i < 86400; i++)
-	{
-		expireFrame(i);
-	}
+	/*
+	node->username  = "EMPTY";
+	node->IPaddress = "EMPTY";
+	node->IP_next = nullptr;
+	node->user_next = nullptr;
+	node->time_next = nullptr;
+	node->free_next = freelist_head;
+	*/
 }
 
 void Timeframe::alertAdministrator(string reason, int index)
 {
-	cout << "Alerting the administrator because " << reason << " at timeindex " << index << endl;
+	cout << "Alerting the administrator: " << reason << " at timeindex " << index << endl;
 	sleep(3);
+}
+
+Userdata* Timeframe::getNode(string raw_line)
+{
+	//this function is for getting a node off of the 
+	//free list
+	Userdata* node = nullptr;
+	if(freelist_head == nullptr)
+	{
+		//freelist is empty
+		node = new Userdata();
+	}
+	else if(freelist_head->free_next == nullptr)
+	{
+		//freelist only hase one node left
+		node = freelist_head;
+		freelist_head = nullptr;
+	}
+	else
+	{
+		//freelist has > one node
+		node = freelist_head;
+		freelist_head = freelist_head->free_next;
+	}
+
+	return node;
 }

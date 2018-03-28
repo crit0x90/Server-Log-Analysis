@@ -32,27 +32,22 @@ protected:
 class Timeframe {
 public:
 	Timeframe();
+	Timeframe(int size);
 	~Timeframe() {}
-	void appendNode(string request);
-	void expireFrame(int index);
-	int lenFreeList(); //for testing
-	void clearAllFrames();
-	void alertAdministrator(string reason, int index);
+	void insertData(string raw_line);
 private:
+	int lenFreeList(); //for testing
+	void cleanup();
+	void expireFrame(int index);
+	void expireNode(Userdata& node);
+	void alertAdministrator(string reason, int index);
 	Userdata* timeArray;
 	Userdata* freelist_head;
 	int currentIndex; //where we are currently operating in the timeframe DS
-protected:
-};
-
-class Userhash {
-public:
-	Userhash();
-	~Userhash() {}
-	void hashUser(string username);
-private:
-	Userdata* userhash;
-	int hashSize;
+	int cleanupIndex; //where the cleanup index currently is
+	int cleanupLength;//the distance between the cleanupIndex and the currentIndex
+	int timeFrameSize;
+	Userdata* getNode(string raw_line);
 protected:
 };
 
