@@ -5,55 +5,29 @@
 
 using namespace std;
 
-Timeframe::Timeframe()
+Timeframe::Timeframe(int floodWindowSize)
 {
 	//default timeframe size is one day
-	timeFrameSize = 86400;
-	timeArray = new Userdata[timeFrameSize];
+	TIMEFRAME_SIZE = 86400;
+	//default cleanup length is 20 seconds
+	FLOOD_CLEANUP_LENGTH = floodWindowSize;
+	FLOOD_THRESHOLD = 6; //make this dynamic later
 
-	freelist_head  = new Userdata;
-	Userdata* curr = freelist_head;
+	timeArray = new Userdata[TIMEFRAME_SIZE];
 	currentIndex = 0;
-	cleanupLength = 20;
-	//default cleanup size is 20 seconds
-	cleanupIndex = timeFrameSize - 20; 
+	floodCounter = 0;
 
-	//start the free list as 20,000 nodes
-	for(int i = 0; i < 20000; i++)
-	{
-		curr->free_next = new Userdata;
-		curr = curr->free_next;
-	}
+	floodCleanupIndex = TIMEFRAME_SIZE - FLOOD_CLEANUP_LENGTH;
 }
 
-Timeframe::Timeframe(int size)
+void Timeframe::insertData(Userdata* node, int index)
 {
-	//default timeframe size is one day
-	timeFrameSize = 86400;
-	timeArray = new Userdata[timeFrameSize];
-
-	freelist_head  = new Userdata;
-	Userdata* curr = freelist_head;
-	currentIndex = 0;
-	cleanupLength = size;
-	//the length of time before cleanup is called 
-	//is represented by maxsize - size
-	cleanupIndex = timeFrameSize - cleanupLength;
-
-	//start the free list as 20,000 nodes
-	for(int i = 0; i < 20000; i++)
-	{
-		curr->free_next = new Userdata;
-		curr = curr->free_next;
-	}
-}
-
-void Timeframe::insertData(string raw_line)
-{
+	cout << "Inserting " << node->username << " at index " << index << endl;
+	/*
 	int index = getIndex(raw_line);
 	cout << "Inserting data at frame index " << index << endl;
 
-	if(index != currentIndex)
+	if(timeArray[index].time_next == nullptr)
 	{
 		currentIndex = index;
 		cleanup();
@@ -61,11 +35,6 @@ void Timeframe::insertData(string raw_line)
 	}
 	else
 	{
-		//since we are on this branch we know that the
-		//current index has not changed since the last
-		//time that we went to insert a node so we can
-		//infer that there is already a node at the 
-		//current index
 		Userdata* curr = timeArray[index].time_next;
 
 		while(curr->time_next != nullptr)
@@ -75,19 +44,31 @@ void Timeframe::insertData(string raw_line)
 
 		curr->time_next = getNode(raw_line);
 	}
+	//increment the meta nodes flood counter
+	floodCounter++;
+	if(floodCounter > FLOOD_TRESHOLD)
+	{
+		floodTest(index);
+	}
+	*/
 }
 
 void Timeframe::cleanup()
 {
-	//The purpose of this function is to make the cleanupIndex
+	/*
+	//The purpose of this function is to make the cleanupIndexs
 	//"catch up" to the current index whenever there is a change 
 	//in the current index
-	int oldCleanupIndex = cleanupIndex;
-	if(cleanupIndex < currentIndex)
+	int oldFloodIndex = floodCleanupIndex;
+	int oldUserIndex = userCleanupIndex;
+	int oldIPindex = ipCleanupIndex;
+
+	//first we clean up the flood frame
+	if(floodCleanupIndex < currentIndex)
 	{
-		while(cleanupIndex < (currentIndex - cleanupLength))
+		while(floodCleanupIndex < (currentIndex - FLOOD_CLEANUP_LENGTH))
 		{
-			expireFrame(cleanupIndex);
+			expireTimeFrame(floodCleanupIndex);
 			cleanupIndex++;
 		}
 	}
@@ -97,30 +78,38 @@ void Timeframe::cleanup()
 		//has looped back around the data structure
 
 		//total distance between currentIndex and cleanupIndex
-		int totalDistance = currentIndex + (timeFrameSize - cleanupIndex);
-		int distanceToTravel = totalDistance - cleanupLength;
+		int totalDistance = currentIndex + (TIMEFRAME_SIZE - floodCleanupIndex);
+		int distanceToTravel = totalDistance - FLOOD_CLEANUP_LENGTH;
 
 		while(distanceToTravel > 0)
 		{
-			if(cleanupIndex == 86399)
+			if(floodCleanupIndex == 86399)
 			{
-				expireFrame(cleanupIndex);
-				cleanupIndex = 0;
+				expireTimeFrame(floodCleanupIndex);
+				floodCleanupIndex = 0;
 				distanceToTravel--;
 			}
 			else
 			{
-				expireFrame(cleanupIndex);
-				cleanupIndex++;
+				expireTimeFrame(floodCleanupIndex);
+				floodCleanupIndex++;
 				distanceToTravel--;
 			}
 		}
 	}
+
+	//next we clean up the user frame
+	if(userCleanupIndex < currentIndex)
+	{
+
+	}
+	*/
 }
 
-void Timeframe::expireFrame(int index)
+void Timeframe::expireTimeFrame(int index)
 {
-	cout << "Expiring frame at index " << index << endl;
+	/*
+	cout << "Expiring flood frame at index " << index << endl;
 
 	if(timeArray[index].time_next == nullptr)
 	{
@@ -134,28 +123,32 @@ void Timeframe::expireFrame(int index)
 
 		while(curr->time_next != nullptr)
 		{
-			cout << "Old value: " << curr->username << endl;
 			placeholder = curr->time_next;
-			expireNode(curr);
-			freelist_head = curr;
+			expireTimeNode(curr, index);
 			curr = placeholder;
-			cout << "New value: " << curr->username << endl;
 		}
 		//dont forget the last node
-		expireNode(curr);
-		freelist_head = curr;
+		expireTimeNode(curr);
 	}
+	*/
 }
 
-void Timeframe::expireNode(Userdata& node)
+void Timeframe::expireTimeNode(Userdata* node)
 {
 	/*
-	node->username  = "EMPTY";
-	node->IPaddress = "EMPTY";
-	node->IP_next = nullptr;
-	node->user_next = nullptr;
 	node->time_next = nullptr;
-	node->free_next = freelist_head;
+	if(node->IP_next == nullptr && node->user_next == nullptr)
+	{
+		//no more relevant data is stored in this node so put 
+		//it back onto the free list
+		node->free_next = freelist_head;
+		freelist_head = node;
+		node->IPcounter = 0;
+		node->userCounter = 0;
+		node->username  = "Empty";
+		node->IPaddress = "Empty";
+	}
+	floodCounter--;
 	*/
 }
 
@@ -165,28 +158,9 @@ void Timeframe::alertAdministrator(string reason, int index)
 	sleep(3);
 }
 
-Userdata* Timeframe::getNode(string raw_line)
+bool Timeframe::floodTest(int index)
 {
-	//this function is for getting a node off of the 
-	//free list
-	Userdata* node = nullptr;
-	if(freelist_head == nullptr)
-	{
-		//freelist is empty
-		node = new Userdata();
-	}
-	else if(freelist_head->free_next == nullptr)
-	{
-		//freelist only hase one node left
-		node = freelist_head;
-		freelist_head = nullptr;
-	}
-	else
-	{
-		//freelist has > one node
-		node = freelist_head;
-		freelist_head = freelist_head->free_next;
-	}
-
-	return node;
+	bool flood_flag = false;
+	cout << "Executing flood test" << endl;
+	return flood_flag;
 }

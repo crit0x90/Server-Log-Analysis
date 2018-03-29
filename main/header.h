@@ -14,11 +14,8 @@ public:
 
 	//number of requests in current time slice, only to be used by 
 	//the node that is in the timeArray
-	int floodCounter; //for tracking request flooding
 	int IPcounter; //for users
 	int userCounter; //for IPs
-	vector<string> associatedIPs;
-	vector<string> associatedUsers;
 	string username;
 	string IPaddress;
 	Userdata* IP_next;
@@ -29,25 +26,41 @@ private:
 protected:
 };
 
+class Freelist {
+public:
+	Freelist() {}
+	Freelist(int size);
+	~Freelist() {}
+	Userdata* getNode(string raw_line);
+private:
+	Userdata* freelist_head;
+protected:
+};
+
 class Timeframe {
 public:
-	Timeframe();
+	Timeframe() {}
 	Timeframe(int size);
 	~Timeframe() {}
-	void insertData(string raw_line);
+	void insertData(Userdata* node, int index);
 private:
 	int lenFreeList(); //for testing
 	void cleanup();
-	void expireFrame(int index);
-	void expireNode(Userdata& node);
+	void expireTimeFrame(int index);
+	void expireTimeNode(Userdata* node);
 	void alertAdministrator(string reason, int index);
-	Userdata* timeArray;
-	Userdata* freelist_head;
+	bool floodTest(int index);
+	
+	Userdata* timeArray; //DS used to check for request flooding
 	int currentIndex; //where we are currently operating in the timeframe DS
-	int cleanupIndex; //where the cleanup index currently is
-	int cleanupLength;//the distance between the cleanupIndex and the currentIndex
-	int timeFrameSize;
-	Userdata* getNode(string raw_line);
+	int floodCleanupIndex; //where the cleanup index currently is for flooding
+	int floodCounter;
+	
+	//constants that will be initialized when the data structure
+	//is created but will not be changed after that
+	int TIMEFRAME_SIZE;//total size of the time frame data structure
+	int FLOOD_CLEANUP_LENGTH;//the distance between the floodCleanupIndex and the currentIndex
+	int FLOOD_THRESHOLD;
 protected:
 };
 
