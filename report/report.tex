@@ -73,44 +73,76 @@
 %-------------------------------------------------------------------------------
 
 \section*{Introduction}
+	New computer systems are created and used daily that affect businesses and 
+	institutions both large and small. As the prevalence of enterprise computer 
+	systems grows, so too does the profitability of attacking such systems. With
+	the quickly changing culture of software development security holes can easily be
+	introduced as new APIs and frameworks become available but these security risks
+	can go months or years without being patched. This means that often times it is not
+	a question of if a user account will be compromised but when a user will be compromised
+	When a user of one of these systems is compromised a myriad different 
+	types of information is at risk of being stolen by attackers. Libraries 
+	risk losing their databases of research papers, businesses risk databases
+	of customer information, and governments risk their national security.
 
-New computer systems are created and used daily that affect businesses and 
-institutions both large and small. As the prevalence of enterprise computer 
-systems grows, so too does the profitability of attacking such systems. With
-the quickly changing culture of software development security holes can easily be
-introduced as new APIs and frameworks become available but these security risks
-can go months or years without being patched. This means that often times it is not
-a question of if a user account will be compromised but when a user will be compromised
-When a user of one of these systems is compromised a myriad different 
-types of information is at risk of being stolen by attackers. Libraries 
-risk losing their databases of research papers, businesses risk databases
-of customer information, and governments risk their national security.
+	The purpose of this project was to combat such attackers by attempting to identify
+	compromised users and alert relevant information security personel before damage 
+	can be done. This was achieved through analyzing the log files of a server in real
+	time in order to identify and respond to any users that exhibit suspicious behavior.
+	The initial motivation for this project came from a university library that was having
+	trouble with compromised user accounts that would download as many academic papers and 
+	journals as possible for resale. This would result in the affected databases being locked 
+	to the entire university until administrators were able to prove to the database provider 
+	that the attacker had been dealt with.
 
-The purpose of this project was to combat such attackers by attempting to identify
-compromised users and alert relevant information security personel before damage 
-can be done. This was achieved through analyzing the log files of a server in real
-time in order to identify and respond to any users that exhibit suspicious behavior.
-The initial motivation for this project came from a university library that was having
-trouble with compromised user accounts that would download as many academic papers and 
-journals as possible for resale. This would result in the affected databases being locked 
-to the entire university until administrators were able to prove to the database provider 
-that the attacker had been dealt with.
 
 \section*{Libraries and Resources}
-[talk about libraries used and other 
-programs that were examined to inspire 
-this one, linux features]
+
+	\subsection*{Inspirations}
+	There were several programs that this project drew inspiration from. The first 
+	piece of software that was studied was Splunk. Splunk is security information
+	and event management program with a variety of features includeing data collection,
+	searching, indexing, and analysis. The principle feature that drawn from Splunk was
+	the real time analysis of log files with the intent of finding strange data patterns.
+	Splunk many several advanced features such as data visualization and searching
+	functionality but the goal of this project was to be much more light weight than
+	something like Splunk in terms of size and overhead. Another program that inspired 
+	this project was IBM QRadar. The feature that we were most interested in replicating
+	with this project was the detection of insider threats. Often times the most common 
+	threat in library systems the authenticated so it was important that our program
+	would be able to detect threats from authenticated users. The final program that we
+	drew inspiration from was Graylog. The inspiration from Graylog was taken primarily
+	from its alerting mechanisms. Greylog is capable of sending an email or Slack message,
+	spawning a new server to balance load, and blocking IP ranges in a firewall when a 
+	threat is detected.
+
+
+	\subsection*{Libraries and Tools}
+	There were several external libraries and tools that were used in the creation of 
+	this project. The first major tool that was used was the Unix tail command. The tail
+	command outputs the last 10 lines of a file to standard output. When used with the
+	-f option, tail continuously outputs any line that is appended to the file. By using
+	tail -f on the log file and then piping the output into the program using the Unix 
+	pipe operator. Another library that was used was the Boost library. One of the specific
+	files that were included were the Boost lexical cast file $(<boost/lexical\_cast.hpp>)$
+	which was used for catching errors during the processing of a raw line provided 
+	by the tail command. The other was the Boost string file $(<boost/algorithm/string.hpp>)$
+	which was used in the division of the raw line.
+
 
 \section*{Data Structures}
 [talk about data structures used, make diagrams]
 
+
 \section*{Algorithms}
 [talk about algorithms used]
+
 
 \section*{Paradigms}
 [talk about online processing as a paradigm
 and why this was a necessary approach to the 
 problem]
+
 
 or was it batch processing?
 
