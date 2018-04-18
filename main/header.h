@@ -26,16 +26,19 @@ private:
 protected:
 };
 
+
 class Freelist {
 public:
 	Freelist() {}
 	Freelist(int size);
 	~Freelist() {}
 	Userdata* getNode(string raw_line);
+	Userdata* getFreelistHead();
 private:
 	Userdata* freelist_head;
 protected:
 };
+
 
 class Timeframe {
 public:
@@ -44,26 +47,46 @@ public:
 	~Timeframe() {}
 	void insertData(Userdata* node, int index);
 private:
-	int lenFreeList(); //for testing
+	//for testing
+	int lenFreeList(); 
+
+	//members that have general use for the timeframe data structure
+	int currentIndex; //where we are currently operating in the timeframe DS
 	void cleanup();
 	void expireTimeFrame(int index);
 	void expireTimeNode(Userdata* node);
 	void alertAdministrator(string reason, int index);
-	bool floodTest(int index);
+	Userdata* timeArray; //DS used to check for expiration of data
 	
-	Userdata* timeArray; //DS used to check for request flooding
-	int currentIndex; //where we are currently operating in the timeframe DS
+	//members that deal with request flood handling
 	int floodCleanupIndex; //where the cleanup index currently is for flooding
-	int floodCounter;
-	
+	int floodCounter; //how many requests are in the current frame
+	bool floodTest(); //checks if there is one user that is causing the flooding
+
+	//members that deal with the user hash
+	Userhash* userhash;
+	int userCleanupIndex;
+	void expireUserFrame(int index);
+	void expireUserNode(Userdata* node);
+
+	//members that deal with the IP hash
+	IPhash* iphash;
+	int ipCleanupIndex;
+	void expireIPFrame(int index);
+	void expireIPNode(Userdata* node);
+
+	//members that deal with the freelist
+	Freelist* freelist;
+
 	//constants that will be initialized when the data structure
 	//is created but will not be changed after that
 	int TIMEFRAME_SIZE;//total size of the time frame data structure
 	int FLOOD_CLEANUP_LENGTH;//the distance between the floodCleanupIndex and the currentIndex
-	int FLOOD_THRESHOLD;
+	int FLOOD_THRESHOLD; //how many requests before a flood alert is triggered
+	int USER_CLEANUP_LENGTH;//the distance between the userCleanupIndex and the currentIndex
+	int IP_CLEANUP_LENGTH;//the distance between the ipCleanupIndex and the currentIndex
 protected:
 };
-
 //utility functions
 
 //returns hours given a timestamp

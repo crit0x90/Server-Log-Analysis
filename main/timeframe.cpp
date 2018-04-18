@@ -9,67 +9,69 @@ Timeframe::Timeframe(int floodWindowSize)
 {
 	//default timeframe size is one day
 	TIMEFRAME_SIZE = 86400;
-	//default cleanup length is 20 seconds
 	FLOOD_CLEANUP_LENGTH = floodWindowSize;
 	FLOOD_THRESHOLD = 6; //make this dynamic later
+	USER_CLEANUP_LENGTH = 20; //make this dynamic later
+	IP_CLEANUP_LENGTH = 20; //make this dynamic later
 
 	timeArray = new Userdata[TIMEFRAME_SIZE];
 	currentIndex = 0;
 	floodCounter = 0;
 
 	floodCleanupIndex = TIMEFRAME_SIZE - FLOOD_CLEANUP_LENGTH;
+	userCleanupIndex  = TIMEFRAME_SIZE - USER_CLEANUP_LENGTH;
+	ipCleanupIndex    = TIMEFRAME_SIZE - IP_CLEANUP_LENGTH; 
 }
 
 void Timeframe::insertData(Userdata* node, int index)
 {
-	cout << "Inserting " << node->username << " at index " << index << endl;
-	/*
-	int index = getIndex(raw_line);
 	cout << "Inserting data at frame index " << index << endl;
 
 	if(timeArray[index].time_next == nullptr)
 	{
 		currentIndex = index;
 		cleanup();
-		timeArray[index].time_next = getNode(raw_line);
+		timeArray[index].time_next = node;
 	}
 	else
 	{
-		Userdata* curr = timeArray[index].time_next;
+		Userdata* curr = timeArray[index].time_next; //first node in list (not meta node)
 
 		while(curr->time_next != nullptr)
 		{
 			curr = curr->time_next;
 		}
 
-		curr->time_next = getNode(raw_line);
+		curr->time_next = node;
 	}
+
+	//hash for userdata
+
+
+	//hash for IP
+
+
 	//increment the meta nodes flood counter
 	floodCounter++;
-	if(floodCounter > FLOOD_TRESHOLD)
+	if(floodCounter > FLOOD_THRESHOLD)
 	{
-		floodTest(index);
+		floodTest();
 	}
-	*/
 }
 
 void Timeframe::cleanup()
 {
-	/*
-	//The purpose of this function is to make the cleanupIndexs
+	//The purpose of this function is to make the cleanupIndex
 	//"catch up" to the current index whenever there is a change 
 	//in the current index
 	int oldFloodIndex = floodCleanupIndex;
-	int oldUserIndex = userCleanupIndex;
-	int oldIPindex = ipCleanupIndex;
 
-	//first we clean up the flood frame
 	if(floodCleanupIndex < currentIndex)
 	{
 		while(floodCleanupIndex < (currentIndex - FLOOD_CLEANUP_LENGTH))
 		{
 			expireTimeFrame(floodCleanupIndex);
-			cleanupIndex++;
+			floodCleanupIndex++;
 		}
 	}
 	else
@@ -97,19 +99,11 @@ void Timeframe::cleanup()
 			}
 		}
 	}
-
-	//next we clean up the user frame
-	if(userCleanupIndex < currentIndex)
-	{
-
-	}
-	*/
 }
 
 void Timeframe::expireTimeFrame(int index)
 {
-	/*
-	cout << "Expiring flood frame at index " << index << endl;
+	cout << "Expiring time frame at index " << index << endl;
 
 	if(timeArray[index].time_next == nullptr)
 	{
@@ -118,49 +112,50 @@ void Timeframe::expireTimeFrame(int index)
 	else
 	{
 		Userdata* curr = timeArray[index].time_next; //curr == first node in list
+
 		timeArray[index].time_next = nullptr; //point the array pointer back to null
 		Userdata* placeholder = nullptr;
 
 		while(curr->time_next != nullptr)
 		{
 			placeholder = curr->time_next;
-			expireTimeNode(curr, index);
+			expireTimeNode(curr);
 			curr = placeholder;
 		}
 		//dont forget the last node
 		expireTimeNode(curr);
 	}
-	*/
 }
 
 void Timeframe::expireTimeNode(Userdata* node)
 {
-	/*
-	node->time_next = nullptr;
+
+	node->time_next = nullptr; //take node off out of time frame
+
 	if(node->IP_next == nullptr && node->user_next == nullptr)
 	{
 		//no more relevant data is stored in this node so put 
 		//it back onto the free list
-		node->free_next = freelist_head;
-		freelist_head = node;
+		//node->free_next = getFreelistHead;
+		//freelist_head = node;
 		node->IPcounter = 0;
 		node->userCounter = 0;
 		node->username  = "Empty";
 		node->IPaddress = "Empty";
 	}
 	floodCounter--;
-	*/
 }
 
 void Timeframe::alertAdministrator(string reason, int index)
 {
-	cout << "Alerting the administrator: " << reason << " at timeindex " << index << endl;
+	cout << "Alerting the administrator: " << reason << " at index " << index << endl;
 	sleep(3);
 }
 
-bool Timeframe::floodTest(int index)
+bool Timeframe::floodTest()
 {
 	bool flood_flag = false;
 	cout << "Executing flood test" << endl;
 	return flood_flag;
 }
+

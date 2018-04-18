@@ -44,3 +44,8 @@ Userdata* Freelist::getNode(string raw_line)
 
 	return node;
 }
+
+Userdata* Freelist::getFreelistHead()
+{
+	return freelist_head;
+}
