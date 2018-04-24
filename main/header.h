@@ -3,6 +3,10 @@
 
 #include <string>
 #include <vector>
+#include <queue>
+#include <map>
+#include <chrono>
+#include <unistd.h>
 
 using namespace std;
 
@@ -12,16 +16,14 @@ public:
 	Userdata(string name, string IP);
 	~Userdata() {}
 
-	//number of requests in current time slice, only to be used by 
-	//the node that is in the timeArray
-	int IPcounter; //for users
-	int userCounter; //for IPs
 	string username;
 	string IPaddress;
-	Userdata* IP_next;
-	Userdata* user_next;
-	Userdata* time_next;
+
 	Userdata* free_next;
+
+	time_t floodStamp;
+	time_t userStamp;
+	time_t ipStamp;
 private:
 protected:
 };
@@ -39,7 +41,7 @@ private:
 protected:
 };
 
-
+/*
 class Timeframe {
 public:
 	Timeframe() {}
@@ -87,6 +89,7 @@ private:
 	int IP_CLEANUP_LENGTH;//the distance between the ipCleanupIndex and the currentIndex
 protected:
 };
+*/
 //utility functions
 
 //returns hours given a timestamp
@@ -112,5 +115,4 @@ string getName(string raw_line);
 
 //returns an IP address given a raw input string
 string getIP(string raw_line);
-
 #endif

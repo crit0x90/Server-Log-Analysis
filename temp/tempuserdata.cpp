@@ -15,6 +15,5 @@ Userdata::Userdata(string name, string IP)
 
 void readConfig()
 {
-	const long int seconds = 40;
-	LOOKAHEAD_LENGTH = chrono::duration<int, ratio<seconds> > (1);
+	cout << "Reading config file" << endl;
 }

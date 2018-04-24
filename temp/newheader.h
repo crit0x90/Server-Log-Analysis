@@ -27,8 +27,6 @@ using chrono::system_clock;
 	 time
 */
 
-//40 second lookahead
-extern chrono::system_clock::duration LOOKAHEAD_LENGTH;// = chrono::duration<int, ratio<40> > (1);
 
 class Userdata {
 public:
@@ -39,13 +37,12 @@ public:
 	string username;
 	string IPaddress;
 	//time_t can be treated like a long int
-	time_t expirationTime;
+	time_t t;
 private:
 protected:
 };
 
 void readConfig();
-
 
 
 class Freelist {
@@ -87,28 +84,4 @@ private:
 protected:
 };
 
-
-//possible main loop psuedocode
-int main()
-{
-	//create a Timeframe data structure
-
-	while(readDataFromFile)
-	{
-		//get node from freelist and put into the qQueue
-
-		//remove any nodes that need to be removed,
-		//update maps as needed, check if an alert
-		//needs to be sent
-
-		//reinsert nodes that still have data in them 
-		//with their new weight
-
-		//
-
-
-	}
-	return 0;
-}
-*/
 #endif

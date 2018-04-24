@@ -56,28 +56,27 @@ string getIP(string raw_line)
     return IP;
 }
 
-
+//returns expiration time
 time_t processLine(string name, string ip)
 {
 	system_clock::time_point today = system_clock::now();
 
 	time_t tt;
-	time_t tt2;
-
+	
 	tt = system_clock::to_time_t(today);
 	//cout << "Today is: " << ctime(&tt) << endl;
-
-	tt2 = system_clock::to_time_t(today+LOOKAHEAD_LENGTH);
-	//cout << "Today is: " << ctime(&tt2) << endl;
+	//tt += 30;
+	//cout << "Today is: " << ctime(&tt) << endl;
 
 	Userdata* user = new Userdata(name, ip);
-	//user->floodExpirationTime = system_clock::to_time_t(today+FLOOD_LOOKAHEAD_LENGTH);
+	//user->floodExpirationTime = system_clock::to_time_t(today);
 
 	return tt;
 }
 
 int main()
 {
+	/*
 	string line = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:31 -0700]";
 	string name = getName(line);
 	string ip = getIP(line);
@@ -94,7 +93,22 @@ int main()
 	queue<Userdata*> queue;
 	queue.push(user);
 
-	cout << ctime(&queue.front()->expirationTime) << endl; 
+	//cout << ctime(&queue.front()->expirationTime) << endl; 
+	*/
+
+	string lineInput;
+	while (getline(cin,lineInput)) 
+    {
+    	//set record info
+
+    	//put into pQueue
+
+    	//update data structures
+
+    	//check if alert is triggered
+
+    	//expire data
+    }
 
 	return 0;
 }
