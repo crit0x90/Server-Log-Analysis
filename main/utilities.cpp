@@ -3,6 +3,7 @@
 #include <vector>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include "header.h"
 
 using namespace std;
 
@@ -104,4 +105,13 @@ string getIP(string raw_line)
     string IP =  splitVec.at(0);
 
     return IP;
+}
+
+void freeNode(Userdata* node)
+{
+	node->username  = "NULLPTR";
+	node->IPaddress = "NULLPTR";
+	node->floodStamp = 0;
+	node->userStamp = 0;
+	node->ipStamp = 0;
 }
