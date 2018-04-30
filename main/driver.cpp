@@ -121,19 +121,18 @@ void start()
     Freelist* freelist = new Freelist(freelist_size); //freelist
     priority_queue<pair<time_t, Userdata*> > pQueue;  //priority queue
     map<string, int> floodMap; //flood map
-    map<string, map<string, int> > ipMap; //ip map, ip -> map<usr, num_occurances>
+    map<string, map<string, time_t> > ipMap; //ip map, ip -> map<usr, num_occurances>
     map<string, map<string, int> > userMap; //user map, username -> map<ip, num occurances>
     string lineInput;
     system_clock::time_point currentTime = system_clock::now();
     time_t tt;
-
-    currentTime = system_clock::now(); //get current time
-    tt = system_clock::to_time_t(currentTime);//format
-
     
     while (getline(cin,lineInput)) 
     {
+        currentTime = system_clock::now(); //get current time
+        tt = system_clock::to_time_t(currentTime);//format
         lineNumber++;
+
     //set record info
         //cout << "Setting record info" << endl;
         Userdata* record = freelist->getNode(testLine); //no timestamps yet
@@ -163,25 +162,7 @@ void start()
 
         //check to see if the outer if else is necessary later
         //update ip map
-        if(ipMap.count(record->IPaddress))
-        {
-            //the username is already in the map
-            if(ipMap[record->IPaddress].count(record->username))
-            {
-                //the ip is already in the map
-                ipMap[record->IPaddress][record->username]++;
-            }
-            else
-            {
-                //the ip is not in the map
-                ipMap[record->IPaddress][record->username] = 1;
-            }
-        }
-        else
-        {
-            //username isnt in the map
-            ipMap[record->IPaddress][record->username] = 1;
-        }
+        ipMap[record->IPaddress][record->username] = tt;
 
         //update user map
         if(userMap.count(record->username))
@@ -216,13 +197,13 @@ void start()
             //alertAdministrator();
         }
 
-        if(ipMap[record->IPaddress][record->username] > ipThreshold)
+        if(ipMap[record->IPaddress].size() > ipThreshold)
         {
             iAlertCount++;
             alertCount++;
             cout << "ALERTING ADMINISTRATOR: IP" << endl;
             cout << "Line number: " << lineNumber << endl;
-            ipMap[record->IPaddress][record->username] = 0;   
+            ipMap.erase(record->IPaddress);   
             //alertAdministrator();
         }
 
@@ -263,18 +244,11 @@ void start()
             //ip expire
             if(tt == comp_node->ipStamp)
             {
-                ipMap[comp_node->IPaddress][comp_node->username]--;
-                comp_node->ipStamp = -1;
-
-                //if there are no more instances of the ip then remove that listing
-                if(ipMap[comp_node->IPaddress][comp_node->username] == 0)
+                //if the current nodes ip timestamp is the same as the most recent time
+                //stamp on that nodes user in the ip map then expire that user
+                if(comp_node->ipStamp == ipMap[comp_node->IPaddress][comp_node->username])
                 {
-                    ipMap[comp_node->IPaddress].erase(comp_node->username);
-                    //if there are no more ips at all then remove this user
-                    if(ipMap[comp_node->IPaddress].size() == 0)
-                    {
-                        ipMap.erase(comp_node->IPaddress);
-                    }
+                    ipMap[record->IPaddress].erase(comp_node->username);
                 }
 
                 //if no unexpired data left return to free list
