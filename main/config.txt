@@ -1,0 +1,16 @@
+#DO NOT CHANGE THE ORDER OF THE VARIABLES
+#FORMAT IS AS FOLLOWS, NO SPACES
+#ANY LINE WITH # PREPENDED WILL NOT BE READ
+# VARIABLE:VALUE;
+
+freelist_size:10000;
+
+
+floodThreshold:50;
+userThreshold:3;
+ipThreshold:3;
+
+#HOW MANY SECONDS BEFORE EXPIRING DATA
+flood_lookahead:1;
+user_lookahead:10;
+ip_lookahead:10;

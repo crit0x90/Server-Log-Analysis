@@ -4,8 +4,7 @@ import sys
 
 with open(sys.argv[1]) as file:
 	for line in file:
-		if line != '\n' and line.split()[2] != '-':
+		if line != '\n':
 			sys.stdout.write(line)
 			sys.stdout.flush()
 			#time.sleep(0.05)
-#hang at 57712

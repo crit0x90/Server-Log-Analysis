@@ -5,24 +5,117 @@
 #include <chrono>
 #include <unistd.h>
 #include <utility>
+#include <fstream>
 #include <set>
 #include "header.h"
 using chrono::system_clock;
 using namespace std;
 
 //GLOBAL VARIABLES
-int freelist_size = 0;
+    int lineNumber = 0;
+    int alertCount = 0;
 
-int floodThreshold = 10;
-int userThreshold = 3;
-int ipThreshold = 3;
+    int fAlertCount = 0;
+    int uAlertCount = 0;
+    int iAlertCount = 0;
+    //read via config
+    int freelist_size = 0;
+    int floodThreshold = 10;
+    int userThreshold = 3;
+    int ipThreshold = 3;
+    int flood_lookahead = 2;
+    int user_lookahead = 5;
+    int ip_lookahead = 5;
 
-int flood_lookahead = 0;
-int user_lookahead = 0;
-int ip_lookahead = 0;
+void readConfig()
+{
+    string line;
+    int value = 0;
+    int counter = 1;
+    int start_index;
+    int end_index;
+    string::size_type sz;
+    ifstream config("config.txt");
+    if(config.is_open())
+    {
+        while(getline(config, line))
+        {   
+            if(line.size() > 0 && line.at(0) != '#')
+            {
+                //cout << "line recieved: " << line << endl;
+                for(int i = 0; i < line.size(); i++)
+                {
+                    if(line.at(i) == ':')
+                    {
+                        start_index = i+1;
+                    }
+                    if(line.at(i) == ';')
+                    {
+                        end_index = i;
+                    }
+                }
+
+                value = stoi(line.substr(start_index, end_index-start_index), &sz);
+                //cout << value << endl;
+
+                switch(counter)
+                {
+                    case 1: freelist_size = value;
+                            counter++;
+                            break;
+
+                    case 2: floodThreshold = value;
+                            counter++;
+                            break;
+
+                    case 3: userThreshold = value;
+                            counter++;
+                            break;
+
+                    case 4: ipThreshold = value;
+                            counter++;
+                            break;
+
+                    case 5: flood_lookahead = value;
+                            counter++;
+                            break;
+
+                    case 6: user_lookahead = value;
+                            counter++;
+                            break;
+
+                    case 7: ip_lookahead = value;
+                            counter++;
+                            break;
+
+                    default:
+                            cerr << "Error in switch statement for config read in" << endl; 
+                            break;
+                }
+
+            }
+        }
+        config.close();
+    }
+    else
+    {
+        cerr << "ERROR: UNABLE TO OPEN CONFIG FILE" << endl;
+    }
+
+    cout << "freelist_size: " << freelist_size << endl;
+
+    cout << "floodThreshold: " << floodThreshold << endl;
+    cout << "userThreshold: " << userThreshold << endl;
+    cout << "ipThreshold: " << ipThreshold << endl;
+
+    cout << "flood_lookahead: " << flood_lookahead << endl;
+    cout << "user_lookahead: " << user_lookahead << endl;
+    cout << "ip_lookahead: " << ip_lookahead << endl;
+}
 
 void start()
 {
+    cout << "Starting execution" << endl;
     string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:38 -0700]";
 
     Freelist* freelist = new Freelist(freelist_size); //freelist
@@ -37,186 +130,26 @@ void start()
     currentTime = system_clock::now(); //get current time
     tt = system_clock::to_time_t(currentTime);//format
 
-//set record info
-    Userdata* record = freelist->getNode(testLine); //no timestamps yet
-    record->floodStamp = tt + flood_lookahead;
-    record->userStamp  = tt + user_lookahead;
-    record->ipStamp = tt + ip_lookahead;
-
-//put in queue
-    pQueue.push(make_pair(record->floodStamp, record));
-    pQueue.push(make_pair(record->userStamp, record));
-    pQueue.push(make_pair(record->ipStamp, record));
-
-//update data structures
-
-    //update flood map
-    if(floodMap.count(record->IPaddress))
-    {
-        //the key is already in the map
-        floodMap[record->IPaddress]++;
-    }
-    else
-    {
-        //not in map so insert
-        floodMap.insert(pair<string, int>(record->IPaddress, 1));
-    }
-
-    //check to see if the outer if else is necessary later
-    //update ip map
-    if(ipMap.count(record->IPaddress))
-    {
-        //the username is already in the map
-        if(ipMap[record->IPaddress].count(record->IPaddress))
-        {
-            //the ip is already in the map
-            ipMap[record->IPaddress][record->username]++;
-        }
-        else
-        {
-            //the ip is not in the map
-            ipMap[record->IPaddress][record->username] = 1;
-        }
-    }
-    else
-    {
-        //username isnt in the map
-        ipMap[record->IPaddress][record->username] = 1;
-    }
-
-    //update user map
-    if(userMap.count(record->username))
-    {
-        //the username is already in the map
-        if(userMap[record->username].count(record->IPaddress))
-        {
-            //the ip is already in the map
-            userMap[record->username][record->IPaddress]++;
-        }
-        else
-        {
-            //the ip is not in the map
-            userMap[record->username][record->IPaddress] = 1;
-        }
-    }
-    else
-    {
-        //username isnt in the map
-        userMap[record->username][record->IPaddress] = 1;
-    }
-
-//check if alert is triggered
-    if(floodMap[record->IPaddress] > floodThreshold)
-    {
-        //alertAdministrator();
-    }
-
-    if(ipMap[record->IPaddress][record->username] > ipThreshold)
-    {
-        //alertAdministrator();
-    }
-
-    if(userMap[record->username][record->IPaddress] > userThreshold)
-    {
-        //alertAdministrator();
-    }
-
-//expire data
-    Userdata* comp_node = pQueue.top().second;
-    //while(tt > pQueue.top().first)
-    //{
-        comp_node = pQueue.top().second;
-        
-        //flood expire
-        if(tt == comp_node->floodStamp)
-        {
-            floodMap[record->IPaddress]--;
-            comp_node->floodStamp = -1;
-
-            //if no unexpired data left return to free list
-            if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
-            {
-                freeNode(comp_node); //resets node data
-                //put back on free list
-                comp_node->free_next = freelist->freelist_head;
-                freelist->freelist_head->free_next = comp_node;
-            }
-        }
-
-        //ip expire
-        if(tt == comp_node->ipStamp)
-        {
-            userMap[comp_node->IPaddress][comp_node->username]--;
-            comp_node->ipStamp = -1;
-
-            //if there are no more instances of the ip then remove that listing
-            if(userMap[comp_node->IPaddress][comp_node->username] == 0)
-            {
-                userMap[comp_node->IPaddress].erase(comp_node->username);
-                //if there are no more ips at all then remove this user
-                if(userMap[comp_node->IPaddress].size() == 0)
-                {
-                    userMap.erase(comp_node->IPaddress);
-                }
-            }
-
-            //if no unexpired data left return to free list
-            if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
-            {
-                freeNode(comp_node); //resets node data
-                //put back on free list
-                comp_node->free_next = freelist->freelist_head;
-                freelist->freelist_head->free_next = comp_node;
-            }
-        }
-
-        //user expire
-        if(tt == comp_node->userStamp)
-        {
-            userMap[comp_node->username][comp_node->IPaddress]--;
-            comp_node->userStamp = -1;
-
-            //if there are no more instances of the ip then remove that listing
-            if(userMap[comp_node->username][comp_node->IPaddress] == 0)
-            {
-                userMap[comp_node->username].erase(comp_node->IPaddress);
-                //if there are no more ips at all then remove this user
-                if(userMap[comp_node->username].size() == 0)
-                {
-                    userMap.erase(comp_node->username);
-                }
-            }
-
-            //if no unexpired data left return to free list
-            if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
-            {
-                freeNode(comp_node); //resets node data
-                //put back on free list
-                comp_node->free_next = freelist->freelist_head;
-                freelist->freelist_head->free_next = comp_node;
-            }
-        }
-
-
-    //}
-
-    /*
+    
     while (getline(cin,lineInput)) 
     {
-        currentTime = system_clock::now(); //get current time
-        tt = system_clock::to_time_t(currentTime);//format
-
-        //set record info
-        Userdata* record = freelist->getNode(lineInput); //no timestamps yet
+        lineNumber++;
+    //set record info
+        //cout << "Setting record info" << endl;
+        Userdata* record = freelist->getNode(testLine); //no timestamps yet
         record->floodStamp = tt + flood_lookahead;
         record->userStamp  = tt + user_lookahead;
         record->ipStamp = tt + ip_lookahead;
 
-        //put into pQueue
-        pQueue.push(make_pair(tt, record));
+    //put in queue
+        //cout << "Queueing data" << endl;
+        pQueue.push(make_pair(record->floodStamp, record));
+        pQueue.push(make_pair(record->userStamp, record));
+        pQueue.push(make_pair(record->ipStamp, record));
 
-        //update data structures
-
+    //update data structures
+        //cout << "Updating data structures" << endl;
+        //update flood map
         if(floodMap.count(record->IPaddress))
         {
             //the key is already in the map
@@ -228,37 +161,174 @@ void start()
             floodMap.insert(pair<string, int>(record->IPaddress, 1));
         }
 
-        //check if alert is triggered
+        //check to see if the outer if else is necessary later
+        //update ip map
+        if(ipMap.count(record->IPaddress))
+        {
+            //the username is already in the map
+            if(ipMap[record->IPaddress].count(record->username))
+            {
+                //the ip is already in the map
+                ipMap[record->IPaddress][record->username]++;
+            }
+            else
+            {
+                //the ip is not in the map
+                ipMap[record->IPaddress][record->username] = 1;
+            }
+        }
+        else
+        {
+            //username isnt in the map
+            ipMap[record->IPaddress][record->username] = 1;
+        }
+
+        //update user map
+        if(userMap.count(record->username))
+        {
+            //the username is already in the map
+            if(userMap[record->username].count(record->IPaddress))
+            {
+                //the ip is already in the map
+                userMap[record->username][record->IPaddress]++;
+            }
+            else
+            {
+                //the ip is not in the map
+                userMap[record->username][record->IPaddress] = 1;
+            }
+        }
+        else
+        {
+            //username isnt in the map
+            userMap[record->username][record->IPaddress] = 1;
+        }
+
+    //check if alert is triggered
+        //cout << "Checking for alert triggers" << endl;
         if(floodMap[record->IPaddress] > floodThreshold)
         {
+            alertCount++;
+            fAlertCount++;
+            cout << "ALERTING ADMINISTRATOR: FLOODING" << endl;
+            cout << "Line number: " << lineNumber << endl;
+            floodMap[record->IPaddress] = 0;
             //alertAdministrator();
         }
-        //expire data
-        Userdata* comp_node = pQueue.top().second;
-        while(currentTime > pQueue.top().first)
+
+        if(ipMap[record->IPaddress][record->username] > ipThreshold)
         {
+            iAlertCount++;
+            alertCount++;
+            cout << "ALERTING ADMINISTRATOR: IP" << endl;
+            cout << "Line number: " << lineNumber << endl;
+            ipMap[record->IPaddress][record->username] = 0;   
+            //alertAdministrator();
+        }
+
+        if(userMap[record->username][record->IPaddress] > userThreshold)
+        {
+            uAlertCount++;
+            alertCount++;
+            cout << "ALERTING ADMINISTRATOR: USERNAME" << endl;
+            cout << "Line number: " << lineNumber << endl;
+            userMap[record->username][record->IPaddress] = 0;
+            //alertAdministrator();
+        }
+
+    //expire data
+        Userdata* comp_node;
+        while(tt > pQueue.top().first)
+        {
+            cout << "Expiring data" << endl;
+            comp_node = pQueue.top().second;
+            
+            //flood expire
             if(tt == comp_node->floodStamp)
             {
-                //flood expire
                 floodMap[record->IPaddress]--;
+                comp_node->floodStamp = -1;
+
+                //if no unexpired data left return to free list
+                if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                {
+                    cout << "Freeing Node" << endl;
+                    freeNode(comp_node); //resets node data
+                    //put back on free list
+                    comp_node->free_next = freelist->freelist_head;
+                    freelist->freelist_head->free_next = comp_node;
+                }
             }
-            if(tt == comp_node->userStamp)
-            {
-                //user expire
-            }
+
+            //ip expire
             if(tt == comp_node->ipStamp)
             {
-                //ip expire
+                ipMap[comp_node->IPaddress][comp_node->username]--;
+                comp_node->ipStamp = -1;
+
+                //if there are no more instances of the ip then remove that listing
+                if(ipMap[comp_node->IPaddress][comp_node->username] == 0)
+                {
+                    ipMap[comp_node->IPaddress].erase(comp_node->username);
+                    //if there are no more ips at all then remove this user
+                    if(ipMap[comp_node->IPaddress].size() == 0)
+                    {
+                        ipMap.erase(comp_node->IPaddress);
+                    }
+                }
+
+                //if no unexpired data left return to free list
+                if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                {
+                    cout << "Freeing Node" << endl;
+                    freeNode(comp_node); //resets node data
+                    //put back on free list
+                    comp_node->free_next = freelist->freelist_head;
+                    freelist->freelist_head->free_next = comp_node;
+                }
+            }
+
+            //user expire
+            if(tt == comp_node->userStamp)
+            {
+                userMap[comp_node->username][comp_node->IPaddress]--;
+                comp_node->userStamp = -1;
+
+                //if there are no more instances of the ip then remove that listing
+                if(userMap[comp_node->username][comp_node->IPaddress] == 0)
+                {
+                    userMap[comp_node->username].erase(comp_node->IPaddress);
+                    //if there are no more ips at all then remove this user
+                    if(userMap[comp_node->username].size() == 0)
+                    {
+                        userMap.erase(comp_node->username);
+                    }
+                }
+
+                //if no unexpired data left return to free list
+                if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                {
+                    cout << "Freeing Node" << endl;
+                    freeNode(comp_node); //resets node data
+                    //put back on free list
+                    comp_node->free_next = freelist->freelist_head;
+                    freelist->freelist_head->free_next = comp_node;
+                }
             }
         }
     }
-    */
+
+    cout << "Total alerts sent: " << alertCount << endl;
+    cout << "flood alerts sent: " << fAlertCount << endl;
+    cout << "User alerts sent: " << uAlertCount << endl;
+    cout << "IP alerts sent: " << iAlertCount << endl;
 }
 
 int main()
 {	
     //all lookahead lengths are in seconds
 
+    readConfig();
 
     start();
 
