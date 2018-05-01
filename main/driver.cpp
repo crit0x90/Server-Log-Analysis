@@ -146,6 +146,13 @@ void start()
         pQueue.push(make_pair(record->userStamp, record));
         pQueue.push(make_pair(record->ipStamp, record));
 
+        cout << record << endl;
+        cout << pQueue.top().second << endl;
+        pQueue.pop();
+        //cout << pQueue.top() << endl;
+
+        cin.get();
+
     //update data structures
         //cout << "Updating data structures" << endl;
         //update flood map
@@ -246,6 +253,7 @@ void start()
             {
                 //if the current nodes ip timestamp is the same as the most recent time
                 //stamp on that nodes user in the ip map then expire that user
+                comp_node->ipStamp = -1;
                 if(comp_node->ipStamp == ipMap[comp_node->IPaddress][comp_node->username])
                 {
                     ipMap[record->IPaddress].erase(comp_node->username);
