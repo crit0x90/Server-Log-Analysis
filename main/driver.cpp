@@ -121,7 +121,7 @@ void start()
     Freelist* freelist = new Freelist(freelist_size); //freelist
     priority_queue<pair<time_t, Userdata*> > pQueue;  //priority queue
     map<string, int> floodMap; //flood map
-    map<string, map<string, time_t> > ipMap; //ip map, ip -> map<usr, num_occurances>
+    map<string, map<string, time_t> > ipMap; //ip map, ip -> map<usr, timestamp>
     map<string, map<string, int> > userMap; //user map, username -> map<ip, num occurances>
     string lineInput;
     system_clock::time_point currentTime = system_clock::now();
@@ -146,12 +146,8 @@ void start()
         pQueue.push(make_pair(record->userStamp, record));
         pQueue.push(make_pair(record->ipStamp, record));
 
-        cout << record << endl;
-        cout << pQueue.top().second << endl;
-        pQueue.pop();
-        //cout << pQueue.top() << endl;
-
-        cin.get();
+        cout << ctime(&record->floodStamp) << endl;
+        cout << ctime(&pQueue.top().first) << endl;
 
     //update data structures
         //cout << "Updating data structures" << endl;
@@ -167,7 +163,6 @@ void start()
             floodMap.insert(pair<string, int>(record->IPaddress, 1));
         }
 
-        //check to see if the outer if else is necessary later
         //update ip map
         ipMap[record->IPaddress][record->username] = tt;
 

@@ -1,11 +1,16 @@
-#include <iostream> 
+#include <iostream>
+#include <string> 
 #include <vector>
+#include <queue>
 #include <chrono>
 #include <unistd.h>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <queue>
-#include "newheader.h"
+#include <utility>
+#include <fstream>
+#include <set>
+
+using namespace std;
+using chrono::system_clock;
+//#include "newheader.h"
 /*
 	TT IS COMPARABLE, OLDTIME IS < NEWTIME
 
@@ -22,8 +27,7 @@
 	std::cout << "Today is: " << ctime(&tt) << std::endl;
 */
 
-using namespace std;
-
+/*
 vector<string> splitVector(string data)
 {
 	//initialization
@@ -74,9 +78,108 @@ time_t processLine(string name, string ip)
 	return tt;
 }
 
+*/
+
+struct record {
+	record(time_t ts, string name)
+	{		
+		timestamp = ts;
+		data = name;
+		pqueue_next = nullptr;
+	}
+	record* pqueue_next;
+	time_t timestamp;
+	string data;
+};
+
+//orders from closest -> furthest  timestamp
+class P_Queue {
+public:
+	P_Queue();
+	~P_Queue();
+	void insert(record* item);
+	record* get_front();
+	void del();
+	void display();
+private:
+	record* front;
+};
+
+P_Queue::P_Queue()
+{
+	front = nullptr;
+}
+
+void P_Queue::insert(record* item)
+{
+	//timestamps further in the future are comparably greater
+	//empty case
+	if(front == nullptr)
+	{
+		front = item;
+	}
+	else if(front->timestamp > item->timestamp)
+	{
+		item->pqueue_next = front;
+		front = item;
+	}
+	else
+	{
+		record* temp = front;
+		while(item->timestamp > temp->timestamp)
+		{
+			if(temp->pqueue_next == nullptr)
+			{
+				temp->pqueue_next = item;
+			}
+			else if(temp->pqueue_next->timestamp >= item->timestamp)
+			{
+				item->pqueue_next = temp->pqueue_next;
+				temp->pqueue_next = item;
+			}
+
+			temp = temp->pqueue_next;
+		}
+	}
+}
+
+record* P_Queue::get_front()
+{
+	return front;
+}
+
+void P_Queue::del()
+{
+	record* temp = front;
+	front = temp->pqueue_next;
+	delete temp;
+}
+
+void P_Queue::display()
+{
+	record* temp = front;
+	if(temp == nullptr)
+	{
+		cout << "Priority queue is empty" << endl;
+	}
+	else if(temp->pqueue_next == nullptr)
+	{
+		cout << "(" << temp->data << ", " << temp->timestamp << ")" << endl;
+	}
+	else
+	{
+		while(temp->pqueue_next != nullptr)
+		{
+			cout << "(" << temp->data << ", " << temp->timestamp << ")" << endl;
+		}
+		cout << "(" << temp->data << ", " << temp->timestamp << ")" << endl;
+	}
+}
+
+
 int main()
 {
-	/*
+/*
 	string line = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:31 -0700]";
 	string name = getName(line);
 	string ip = getIP(line);
@@ -94,21 +197,19 @@ int main()
 	queue.push(user);
 
 	//cout << ctime(&queue.front()->expirationTime) << endl; 
-	*/
+*/
+	P_Queue* queue = new P_Queue();
 
-	string lineInput;
-	while (getline(cin,lineInput)) 
-    {
-    	//set record info
+	system_clock::time_point currentTime = system_clock::now();
+	time_t tt = system_clock::to_time_t(currentTime);
 
-    	//put into pQueue
+    record* r = new record(tt, "bob");
+    record* r2 = new record(tt+10, "joe"); 
 
-    	//update data structures
+    queue->insert(r);
+    queue->insert(r2);
 
-    	//check if alert is triggered
-
-    	//expire data
-    }
+    queue->display();
 
 	return 0;
 }
