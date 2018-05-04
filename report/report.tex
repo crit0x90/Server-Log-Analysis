@@ -79,7 +79,7 @@
 	the quickly changing culture of software development security holes can easily be
 	introduced as new APIs and frameworks become available but these security risks
 	can go months or years without being patched. This means that often times it is not
-	a question of if a user account will be compromised but when a user will be compromised
+	a question of if a user account will be compromised but when a user will be compromised.
 	When a user of one of these systems is compromised a myriad different 
 	types of information is at risk of being stolen by attackers. Libraries 
 	risk losing their databases of research papers, businesses risk databases
@@ -131,7 +131,42 @@
 
 
 \section*{Data Structures}
-[talk about data structures used, make diagrams]
+	[REVISE THESE SECTIONS LATER TO ENSURE CORRECTNESS]
+	\subsection*{Userdata and Free List}
+	The Userdata class provided the abstraction for each line of data that
+	was parsed. When a line of data was obtained it was immediately sent to the
+	free list via the getNode function for parsing. This function extracted the
+	needed data from the line (username and IP address), put it into a node from
+	the freelist, and then returned the node. Once this node was obtained by the 
+	main loop it was time stamped with the current time added with the appropriate	lookahead distances.
+	
+	\subsection*{Priority Queue}
+	The priority queue was the data	structure responsible for managing when data 
+	should be expired from each of the map data structures. [ADD MORE HERE]
+
+	\subsection*{Flood Map}
+	The flood map was responsible for detecting attacks that would cause a flood 
+	of requests to appear in the log file over a short period of time such as
+	DoS, spidering, or any type of mass download script. This is achieved by mapping
+	each user to a number of requests recieved from that user over a set period of time
+	(the period of time and the number of requests are determined by values read in from
+	the config file). If this threshold is crossed then an alert is sent to the administrator for further action. The flood lookahead distance will typically be
+	relatively short as the purpose of this data structure is to detect bursts of 
+	activity.
+
+	\subsection*{IP Map}
+	The IP map is a map from an IP address to a map from a username to a timestamp.
+	The purpose of this data structure is to keep track of how many usernames are
+	associated with each IP address. This allows for the detection of attackers who
+	have compromised multiple accounts and are switching between them in an effort to avoid detection to potentially be detected. There is also a timestamp associated
+	with each username which allows the association between the IP address and that
+	particular user account to be broken after a period of time determined in the 
+	config file. The number of users associated with a given IP before flagging the
+	administrator can also be set via the config file.
+
+	\subsection*{User Map}
+	[WRITE HERE WHEN FIXED]
+
 
 
 \section*{Algorithms}
