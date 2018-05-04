@@ -118,11 +118,13 @@ void start()
     cout << "Starting execution" << endl;
     string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:38 -0700]";
 
+    //DATA STRUCTURES
     Freelist* freelist = new Freelist(freelist_size); //freelist
     priority_queue<pair<time_t, Userdata*> > pQueue;  //priority queue
     map<string, int> floodMap; //flood map
     map<string, map<string, time_t> > ipMap; //ip map, ip -> map<usr, num_occurances>
-    map<string, map<string, int> > userMap; //user map, username -> map<ip, num occurances>
+    map<string, map<string, time_t> > userMap; //user map, username -> map<ip, num occurances>
+    
     string lineInput;
     system_clock::time_point currentTime = system_clock::now();
     time_t tt;
@@ -165,25 +167,7 @@ void start()
         ipMap[record->IPaddress][record->username] = tt;
 
         //update user map
-        if(userMap.count(record->username))
-        {
-            //the username is already in the map
-            if(userMap[record->username].count(record->IPaddress))
-            {
-                //the ip is already in the map
-                userMap[record->username][record->IPaddress]++;
-            }
-            else
-            {
-                //the ip is not in the map
-                userMap[record->username][record->IPaddress] = 1;
-            }
-        }
-        else
-        {
-            //username isnt in the map
-            userMap[record->username][record->IPaddress] = 1;
-        }
+        userMap[record->username][record->IPaddress] = tt;
 
     //check if alert is triggered
         //cout << "Checking for alert triggers" << endl;
@@ -207,13 +191,13 @@ void start()
             //alertAdministrator();
         }
 
-        if(userMap[record->username][record->IPaddress] > userThreshold)
+        if(userMap[record->username].size() > userThreshold)
         {
             uAlertCount++;
             alertCount++;
             cout << "ALERTING ADMINISTRATOR: USERNAME" << endl;
             cout << "Line number: " << lineNumber << endl;
-            userMap[record->username][record->IPaddress] = 0;
+            ipMap.erase(record->IPaddress);
             //alertAdministrator();
         }
 
@@ -237,7 +221,7 @@ void start()
                     freeNode(comp_node); //resets node data
                     //put back on free list
                     comp_node->free_next = freelist->freelist_head;
-                    freelist->freelist_head->free_next = comp_node;
+                    freelist->freelist_head = comp_node;
                 }
             }
 
@@ -246,6 +230,8 @@ void start()
             {
                 //if the current nodes ip timestamp is the same as the most recent time
                 //stamp on that nodes user in the ip map then expire that user
+                comp_node->ipStamp = -1;
+
                 if(comp_node->ipStamp == ipMap[comp_node->IPaddress][comp_node->username])
                 {
                     ipMap[record->IPaddress].erase(comp_node->username);
@@ -258,25 +244,20 @@ void start()
                     freeNode(comp_node); //resets node data
                     //put back on free list
                     comp_node->free_next = freelist->freelist_head;
-                    freelist->freelist_head->free_next = comp_node;
+                    freelist->freelist_head = comp_node;
                 }
             }
 
             //user expire
             if(tt == comp_node->userStamp)
-            {
-                userMap[comp_node->username][comp_node->IPaddress]--;
+            {   
+                //if the current nodes user timestamp is the same as the most recent time
+                //stamp on that nodes ip in the user map then expire that ip
                 comp_node->userStamp = -1;
 
-                //if there are no more instances of the ip then remove that listing
-                if(userMap[comp_node->username][comp_node->IPaddress] == 0)
+                if(comp_node->userStamp == ipMap[comp_node->username][comp_node->IPaddress])
                 {
-                    userMap[comp_node->username].erase(comp_node->IPaddress);
-                    //if there are no more ips at all then remove this user
-                    if(userMap[comp_node->username].size() == 0)
-                    {
-                        userMap.erase(comp_node->username);
-                    }
+                    ipMap[record->username].erase(comp_node->IPaddress);
                 }
 
                 //if no unexpired data left return to free list
@@ -286,7 +267,7 @@ void start()
                     freeNode(comp_node); //resets node data
                     //put back on free list
                     comp_node->free_next = freelist->freelist_head;
-                    freelist->freelist_head->free_next = comp_node;
+                    freelist->freelist_head = comp_node;
                 }
             }
         }
