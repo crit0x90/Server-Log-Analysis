@@ -14,4 +14,4 @@ echo '-------------------------------------------------'
 echo '#> FULL LOG TEST RESULTS'
 python ../utilities/printer.py ../input/input.log | ./drive
 echo '#> FULL LOG TEST COMPLETE'
-echo '-------------------------------------------------'
+echo '-------------------------------------------------'	

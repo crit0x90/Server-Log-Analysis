@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <utility>
 #include <fstream>
+#include <functional>
 #include <set>
 
 using namespace std;
@@ -67,7 +68,6 @@ time_t processLine(string name, string ip)
 struct record {
 	record(time_t ts, string name)
 	{		
-		timestamp = ts;
 		data = name;
 		pqueue_next = nullptr;
 	}
@@ -76,17 +76,18 @@ struct record {
 	string data;
 };
 
+/*
 //orders from closest -> furthest  timestamp
 class P_Queue {
 public:
 	P_Queue();
 	~P_Queue();
-	void insert(record* item);
+	void insert(pair<time_t, record*> p);
 	record* get_front();
 	void del();
 	void display();
 private:
-	record* front;
+	pair<time_t, record*>* front;
 };
 
 P_Queue::P_Queue()
@@ -94,44 +95,43 @@ P_Queue::P_Queue()
 	front = nullptr;
 }
 
-void P_Queue::insert(record* item)
+void P_Queue::insert(pair<time_t, record*> p)
 {
 	//timestamps further in the future are comparably greater
 	//empty case
+
 	if(front == nullptr)
 	{
-		front = item;
+		front = p;
 	}
-	else if(front->timestamp > item->timestamp)
+	else if(front.first > p.first)
 	{
-		item->pqueue_next = front;
-		front = item;
+		p.second->pqueue_next = front;
+		front = p.second;
 	}
 	else
 	{
 		record* temp = front;
-		while(item->timestamp > temp->timestamp)
+		while(p.second->timestamp > temp->timestamp)
 		{
 			if(temp->pqueue_next == nullptr)
 			{
-				temp->pqueue_next = item;
+				temp->pqueue_next = p.second;
 			}
-			else if(temp->pqueue_next->timestamp >= item->timestamp)
+			else if(temp->pqueue_next->timestamp >= p.second->timestamp)
 			{
-				item->pqueue_next = temp->pqueue_next;
-				temp->pqueue_next = item;
-			}
+				p.second->pqueue_next = temp->pqueue_next;
+				temp->pqueue_next = p.second;
 
+			}
 			temp = temp->pqueue_next;
 		}
 	}
 }
-
 record* P_Queue::get_front()
 {
 	return front;
 }
-
 void P_Queue::del()
 {
 	record* temp = front;
@@ -159,36 +159,49 @@ void P_Queue::display()
 		cout << "(" << temp->data << ", " << temp->timestamp << ")" << endl;
 	}
 }
+*/
 
+bool pair_greater(pair<time_t, record*> a, pair<time_t, record*> b)
+{
+	if(a.first > b.first)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 int main()
 {
-/*
-	string line = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:31 -0700]";
-	string name = getName(line);
-	string ip = getIP(line);
 	using chrono::system_clock;
 	chrono::duration<int, ratio<60*60*24> > one_day (1);
-	
-	readConfig();
-	Userdata* user = new Userdata(name, ip);
-	user->expirationTime = processLine(name, ip);
-	queue<Userdata*> queue;
-	queue.push(user);
-	//cout << ctime(&queue.front()->expirationTime) << endl; 
-*/
-	P_Queue* queue = new P_Queue();
 
+	priority_queue<pair<time_t, record*>, vector<pair<time_t, record*> >,\
+	 function<bool(pair<time_t, record*> , pair<time_t, record*>)> > queue(pair_greater);
+	
 	system_clock::time_point currentTime = system_clock::now();
 	time_t tt = system_clock::to_time_t(currentTime);
 
     record* r = new record(tt, "bob");
     record* r2 = new record(tt+10, "joe"); 
 
-    queue->insert(r);
-    queue->insert(r2);
+    queue.push(make_pair(tt, r));
+    queue.push(make_pair(tt+10, r));
 
-    queue->display();
+    cout << queue.top().second->data << endl;
+    queue.top().second->data = "larry";
+    queue.pop();
+    cout << queue.top().second->data << endl;
+    /*
+    while(queue.size() > 0)
+    {
+    	cout << queue.top().second->data << endl;
+    	queue.pop();
 
+    }
+    */
+	
 	return 0;
 }
