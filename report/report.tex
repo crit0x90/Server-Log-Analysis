@@ -24,6 +24,9 @@
 \usepackage[english]{babel}
 \usepackage{sectsty}
 \usepackage{url, lipsum}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{line}=[draw]
 
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
@@ -95,7 +98,6 @@
 	to the entire university until administrators were able to prove to the database provider 
 	that the attacker had been dealt with.
 
-
 \section*{Libraries and Resources}
 
 	\subsection*{Inspirations}
@@ -129,9 +131,7 @@
 	by the tail command. The other was the Boost string file $(<boost/algorithm/string.hpp>)$
 	which was used in the division of the raw line.
 
-
 \section*{Data Structures}
-	[REVISE THESE SECTIONS LATER TO ENSURE CORRECTNESS]
 	\subsection*{Userdata and Free List}
 	The Userdata class provided the abstraction for each line of data that
 	was parsed. When a line of data was obtained it was immediately sent to the
@@ -142,7 +142,19 @@
 	
 	\subsection*{Priority Queue}
 	The priority queue was the data	structure responsible for managing when data 
-	should be expired from each of the map data structures. [ADD MORE HERE]
+	should be expired from each of the map data structures. The implementation
+	of the priority queue that was used was taken from the standard library with
+	the exceptation of a custom function $(pair\_greater)$ to be used as the comparator
+	for the priority queue. The reason for the custom comperator was to allow for the
+	ordering of the priority queue to go from least to greatest rather than from 
+	greatest to least and to allow for the usage of a std::pair as the storage value. The 
+	values stored in the pair are a $(time\_t)$ timestamp that represents the expiration 
+	date for that record and a pointer to the record itself. A point to the record was 
+	used to allow any modification of record data to affect all other instances of the 
+	same record that may be present in the priority queue. This was important in 
+	determining when to return Userdata objects to the free list for reuse. The change in 
+	the ordering of values in the priority queue was necessary due to how the $(time\_t)$
+	type is represented numerically.
 
 	\subsection*{Flood Map}
 	The flood map was responsible for detecting attacks that would cause a flood 
@@ -156,8 +168,8 @@
 
 	\subsection*{IP Map}
 	The IP map is a map from an IP address to a map from a username to a timestamp.
-	The purpose of this data structure is to keep track of how many usernames are
-	associated with each IP address. This allows for the detection of attackers who
+	The purpose of this data structure is to keep track of which and how many usernames
+	are associated with each IP address. This allows for the detection of attackers who
 	have compromised multiple accounts and are switching between them in an effort to avoid detection to potentially be detected. There is also a timestamp associated
 	with each username which allows the association between the IP address and that
 	particular user account to be broken after a period of time determined in the 
@@ -165,27 +177,107 @@
 	administrator can also be set via the config file.
 
 	\subsection*{User Map}
-	[WRITE HERE WHEN FIXED]
-
-
+	The user map is a map from a username to a map from an IP adress to a timestamp.
+	The purpose of this data structure was to do the opposite of the IP map by tracking
+	which IP addresses are associated with a given username. Just as in the IP map, the
+	number of occurrances of each IP address was tracked for each user in order to determine when an IP address should no longer be associated with a username. As with
+	the IP map, the data structure can be tuned via the config file to meet client needs.
+	The purpose of this data structure was to watch for users that are rapidly switching IP
+	addresses using the same user account. 
 
 \section*{Algorithms}
-[talk about algorithms used]
+	The main algorithm that was used for this program can be broken down into
+	five distinct repeating steps and two auxilary steps. This steps are given
+	by the following flow chart.\\
 
+	%set the style for the nodes
+	\tikzstyle{startnode} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+
+	\tikzstyle{corenode} = [rectangle, rounded corners, minimum width=3cm, minimum
+	height=1cm, text centered, draw=black, fill=blue!30]
+
+	\tikzstyle{endnode} = [rectangle, rounded corners, minimum width=3cm, minimum
+	height=1cm, text centered, draw=black, fill=red!30]
+
+
+	\begin{tikzpicture}[node distance=2cm]
+
+	%create all of the nodes
+	\node (start) [startnode] {Start};
+	\node (in1) [corenode, below of=start] {Set Info};
+	\node (in2) [corenode, below of=in1] {Enqueue};
+	\node (in3) [corenode, below of=in2] {Update Data Structures};
+	\node (in4) [corenode, below of=in3] {Check Data Structures};
+	\node (in5) [corenode, below of=in4] {Expire Data};
+	\node (end) [endnode, below of=in5] {Exit};
+
+	%draw all of the arrows
+	\draw [->] (start) -- (in1);
+	\draw [->] (in1) -- (in2);
+	\draw [->] (in2) -- (in3);
+	\draw [->] (in3) -- (in4);
+	\draw [->] (in4) -- (in5);
+	\draw [->] (in4) -- (in4);
+	\draw [->] (in4) -- (in1);
+	\draw [->] (in5) -- (end);
+
+	\end{tikzpicture}
 
 \section*{Paradigms}
-[talk about online processing as a paradigm
-and why this was a necessary approach to the 
-problem]
+	[talk about online processing as a paradigm
+	and why this was a necessary approach to the 
+	problem]
 
 
-or was it batch processing?
+	or was it batch processing?
 
 
 \section*{Future Work}
-[talk about future work that could be done for
-this project and projects that could take inspiration
-from this one]
+	Although this project was successful at a base level, there are still many 
+	features that would be useful and would increase the effectiveness of this
+	program. The following are several ideas that may prove to be userful and 
+	interesting work. \\
+
+	\noindent
+	\textbf{Generic Log Reading} \\
+	One thing that would add a lot of convenience to the program would 
+	be something that is able to read any log file and determine the form that 
+	the information takes. This would be useful because if there is any change 
+	in the logging software or if a system administrator changes what information 
+	is being recorded in the log there is a risk of the program failing. \\
+
+	\noindent
+	\textbf{Generic/Dynamic Tracking Patterns} \\
+	In this vein, it would also be extremely useful to come up with some basic kinds of 
+	data forms that one might want to track in the log and then adapting them to 
+	work generically. For example, the user map and the IP map are basically the
+	same thing. There are several other situations given different types of 
+	information that might be useful to track in this same way. For example, if
+	location of the connection was included in the log file then it would be very
+	useful to map this data to a username and then be able to expire this information
+	in the same way that the IP/username associations are expired. \\
+
+	\noindent
+	\textbf{Extended Reporting} \\
+	It may be helpful to the administrators to include more information
+	in any activity report that is sent. For example, rather than just including
+	the line number that set the off the alert it may be useful to include the 
+	line range for the entire traffic pattern that lead to the alert. It may also
+	be helpful to administrators to assign alerts priority levels based on how 
+	often an alert actually ends in being a confirmed threat. This would allow
+	high priority alerts to be sent immediately (perhaps even over SMS rather than
+	SMTP) while low priority alerts may have some kind of time delay where they
+	are allowed to build up before notifying the administrator. \\
+
+	\noindent
+	\textbf{Full Automation} \\
+	Due to the enormity of the data that is being handled and processed by this
+	program, this project may be a great candidate for machine learning. It may
+	be possible to train a machine learning algorithm to determine when a user
+	is comprimised and then perform containment procedures without the direct 
+	supervision of an administrator. This would increase both the accuracy and
+	the response time of any retalitory action that would normally come from
+	the system administrator. \\
 
 
 \end{document}
