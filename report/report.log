@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.2.25)  6 MAY 2018 21:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.2.25)  16 MAY 2018 21:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -908,43 +908,42 @@ Underfull \hbox (badness 10000) in paragraph at lines 189--192
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 236--240
-
- []
-
 [4]
+Underfull \hbox (badness 10000) in paragraph at lines 267--271
+
+ []
+
 LaTeX Font Info:    Font shape `T1/futs/bx/n' in size <12> not available
-(Font)              Font shape `T1/futs/b/n' tried instead on input line 242.
+(Font)              Font shape `T1/futs/b/n' tried instead on input line 273.
 
-Underfull \hbox (badness 10000) in paragraph at lines 241--248
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 249--259
+Underfull \hbox (badness 10000) in paragraph at lines 272--279
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 260--271
+Underfull \hbox (badness 10000) in paragraph at lines 280--290
+
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 291--302
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 272--281
+Underfull \hbox (badness 10000) in paragraph at lines 303--312
 
  []
 
-[5] 
+
 AED: lastpage setting LastPage
 [6] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 17644 strings out of 494953
- 341127 string characters out of 6180977
- 506707 words of memory out of 5000000
- 20434 multiletter control sequences out of 15000+600000
- 99472 words of font info for 183 fonts, out of 8000000 for 9000
+ 17672 strings out of 494953
+ 341498 string characters out of 6180977
+ 508707 words of memory out of 5000000
+ 20450 multiletter control sequences out of 15000+600000
+ 100282 words of font info for 192 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  55i,11n,56p,428b,601s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
@@ -952,7 +951,7 @@ Here is how much of TeX's memory you used:
 share/texlive/texmf-dist/fonts/type1/adobe/utopia/putb8a.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/adobe/utopia/putri8a.pfb>
-Output written on report.pdf (7 pages, 65861 bytes).
+Output written on report.pdf (7 pages, 68345 bytes).
 PDF statistics:
  48 PDF objects out of 1000 (max. 8388607)
  34 compressed objects within 1 object stream

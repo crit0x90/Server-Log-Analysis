@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <utility>
 #include <fstream>
-#include <set>
 #include <functional>
 #include "header.h"
 using chrono::system_clock;
@@ -137,6 +136,7 @@ void start()
     //DATA STRUCTURES
     Freelist* freelist = new Freelist(freelist_size); //freelist
     
+    //priority queue for expiring data
     priority_queue<pair<time_t, Userdata*>, vector<pair<time_t, Userdata*> >,\
      function<bool(pair<time_t, Userdata*> , pair<time_t, Userdata*>)> > pQueue(pair_greater);
 
@@ -310,6 +310,7 @@ void start()
             pQueue.pop();
         }
     }
+    
     cout << "Nodes freed: " << nodesFreed << endl;
     cout << "Total alerts sent: " << alertCount << endl;
     cout << "flood alerts sent: " << fAlertCount << endl;

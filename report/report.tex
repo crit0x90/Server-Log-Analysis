@@ -196,6 +196,8 @@
 	\tikzstyle{corenode} = [rectangle, rounded corners, minimum width=3cm, minimum
 	height=1cm, text centered, draw=black, fill=blue!30]
 
+	\tikzstyle{connector} = [rectangle, rounded corners]
+
 	\tikzstyle{endnode} = [rectangle, rounded corners, minimum width=3cm, minimum
 	height=1cm, text centered, draw=black, fill=red!30]
 
@@ -203,13 +205,16 @@
 	\begin{tikzpicture}[node distance=2cm]
 
 	%create all of the nodes
-	\node (start) [startnode] {Start};
+	\node (start) at (0,0) [startnode] {Start};
 	\node (in1) [corenode, below of=start] {Set Info};
 	\node (in2) [corenode, below of=in1] {Enqueue};
 	\node (in3) [corenode, below of=in2] {Update Data Structures};
 	\node (in4) [corenode, below of=in3] {Check Data Structures};
 	\node (in5) [corenode, below of=in4] {Expire Data};
 	\node (end) [endnode, below of=in5] {Exit};
+	\node (con1) [connector, right of=in5] {};
+	\node (con2) [connector, right of=in1] {};
+
 
 	%draw all of the arrows
 	\draw [->] (start) -- (in1);
@@ -218,10 +223,38 @@
 	\draw [->] (in3) -- (in4);
 	\draw [->] (in4) -- (in5);
 	\draw [->] (in4) -- (in4);
-	\draw [->] (in4) -- (in1);
-	\draw [->] (in5) -- (end);
+	\draw [->] (in5) -- node[anchor=west] {EOF} (end);
+	\draw [->] (in5.east) -| node [anchor=west] {getLine()} ++(1, 0) |- (in1.east);
+	%node [anchor=west] {while data to expire}
+	\draw [->] (in5.west) -| ++(-0.5, 0) -| ++(-0.5, 0.5) -|  ++(1, 0);
 
 	\end{tikzpicture}
+
+	\noindent
+	The first step in the algorithm calls the start function which basically serves as the
+	main function for the program. At the beginning of the start function all of the data structures
+	for the program are declared and the main stdin reading loop is started. From this point 
+	forward control of the program resides with this read loop until termination. The first thing
+	that happens when a line is read into the program is that a Userdata object is created for the
+	data in the line. This includes creating timestamps with the corresponding lookahead distances
+	for the new record. It should be noted that the initial timestamp is taken from the current time
+	according to the machine that this program is running on; not the timestamp contained within the
+	line read from the log file. As long as the program is running on the same machine that the log
+	is being kept on this should not pose a problem. However, if the log data is being sent over
+	a network or a situation where some sort of buffer is in use then this could pose a problem.
+	Once all of the data for the record is set the program then moves to push the data into the 
+	priority queue. This is done by pushing each timestamp as a weight and a pointer to the record
+	as the value. Once the data is in the priority queue it is ready to be processed by each of 
+	the security data structures. This step largely deals with changing data in the maps to reset 
+	expiration times or modify counters. Once the data structures are properly up to date the alert
+	checks are called for each one. This checks to see if an alert needs to be triggered based on 
+	the values contained within the maps. After any alerts have been sent old data is removed from
+	the data structures. The logic for this step is that while there are data points that have a 
+	timestamp that is younger than the current time then the data point represented by that 
+	timestamp should be expired. This continues until the front of the priority queue "catches up"
+	to the current time. Once all of the expirations are done then the program loops back around
+	to the beginning of the file read function to recieve more input from the log file or to 
+	terminate if there is no input remaining.
 
 \section*{Paradigms}
 	[talk about online processing as a paradigm

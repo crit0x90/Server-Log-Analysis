@@ -43,21 +43,6 @@ protected:
 
 //utility functions
 
-//returns hours given a timestamp
-int getHours(string time);
-
-//returns minutes given a timestamp
-int getMinutes(string time);
-
-//returns seconds given a timestamp
-int getSeconds(string time);
-
-//returns an isolated timestamp
-string getTime(string in);
-
-//returns an index given a raw input string
-int getIndex(string raw_line);
-
 //splits a string apart at the spaces and returns a vector
 vector<string> splitVector(string data);
 
@@ -69,5 +54,8 @@ string getIP(string raw_line);
 
 //clears out the value fields of a node
 void freeNode(Userdata* node);
+
+//sends the administrator the report
+void alertAdministrator();
 
 #endif
