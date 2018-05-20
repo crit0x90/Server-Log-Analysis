@@ -48,7 +48,7 @@ void freeNode(Userdata* node)
 	node->ipStamp = 0;
 }
 
-void alertAdministrator()
+void alertAdministrator(tuple<string, int, string, string, time_t> t)
 {
 	
 }

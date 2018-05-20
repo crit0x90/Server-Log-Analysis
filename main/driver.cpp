@@ -200,7 +200,7 @@ void start()
             cout << "Timestamp: " << ctime(&record->floodStamp) << endl;
 
             floodMap[record->IPaddress] = 0;
-            //alertAdministrator();
+            alertAdministrator(make_tuple("FLOODING", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
         if(ipMap[record->IPaddress].size() > ipThreshold)
@@ -213,7 +213,7 @@ void start()
             cout << "IPaddress: " << record->IPaddress << endl;
             cout << "Timestamp: " << ctime(&record->ipStamp) << endl;
             ipMap.erase(record->IPaddress);   
-            //alertAdministrator();
+            alertAdministrator(make_tuple("IP", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
         if(userMap[record->username].size() > userThreshold)
@@ -226,7 +226,7 @@ void start()
             cout << "IPaddress " << record->IPaddress << endl;            
             cout << "Timestamp: " << ctime(&record->userStamp) << endl;
             ipMap.erase(record->IPaddress);
-            //alertAdministrator();
+            alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
     //expire data

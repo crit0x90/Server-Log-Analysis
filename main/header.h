@@ -56,6 +56,6 @@ string getIP(string raw_line);
 void freeNode(Userdata* node);
 
 //sends the administrator the report
-void alertAdministrator();
+void alertAdministrator(tuple<string, int, string, string, time_t> t);
 
 #endif
