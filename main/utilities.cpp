@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "header.h"
@@ -50,5 +51,15 @@ void freeNode(Userdata* node)
 
 void alertAdministrator(tuple<string, int, string, string, time_t> t)
 {
-	
+	ofstream outfile;
+	outfile.open("report.txt", ios::app);
+
+	outfile << "Alert recieved at time: " << get<4>(t) << endl;
+	outfile << "Reason for alert: " << get<0>(t) << endl;
+	outfile << "Alert recieved at line number: " << get<1>(t) << endl;
+	outfile << "Username of triggering record: " << get<2>(t) << endl;
+	outfile << "IP address of triggering record" << get<3>(t) << endl;
+	outfile << endl;
+
+	outfile.close();
 }

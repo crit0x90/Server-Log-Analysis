@@ -151,7 +151,10 @@ void start()
     while (getline(cin,lineInput))
     {
         currentTime = system_clock::now(); //get current time
-        tt = system_clock::to_time_t(currentTime);//format
+
+        //change this to take timestamp from line
+        tt = system_clock::to_time_t(currentTime); //format
+        
         lineNumber++;
 
     //set record info
