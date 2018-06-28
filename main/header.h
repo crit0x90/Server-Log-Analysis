@@ -10,6 +10,8 @@
 
 using namespace std;
 
+typedef unsigned long int TIME_TYPE;
+
 class Userdata {
 public:
 	Userdata();
@@ -21,9 +23,9 @@ public:
 
 	Userdata* free_next;
 
-	time_t floodStamp;
-	time_t userStamp;
-	time_t ipStamp;
+	TIME_TYPE floodStamp;
+	TIME_TYPE userStamp;
+	TIME_TYPE ipStamp;
 private:
 protected:
 };
@@ -56,6 +58,18 @@ string getIP(string raw_line);
 void freeNode(Userdata* node);
 
 //sends the administrator the report
-void alertAdministrator(tuple<string, int, string, string, time_t> t);
+void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t);
+
+//gets the time information given a raw input string
+time_t getTimestamp(string raw_line);
+
+//extracts time from line and converts into numerical representation
+TIME_TYPE toTimeType(string raw_line);
+
+//converts time_type back to human readable format
+string toReadableTime(TIME_TYPE integerTime);
+
+//increments the timestamp 
+TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead);
 
 #endif

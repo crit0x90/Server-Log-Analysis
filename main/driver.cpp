@@ -25,12 +25,16 @@ using namespace std;
     int userThreshold = 3;
     int ipThreshold = 3;
     //all lookahead lengths are in seconds
-    int flood_lookahead = 2;
-    int user_lookahead = 5;
-    int ip_lookahead = 5;
+    long int flood_lookahead = 2;
+    long int user_lookahead = 5;
+    long int ip_lookahead = 5;
+
+typedef unsigned long int TIME_TYPE;
 
 void readConfig()
 {
+    populateMonthMap();
+    populateReverseMonthMap();
     string line;
     int value = 0;
     int counter = 1;
@@ -56,10 +60,11 @@ void readConfig()
                         end_index = i;
                     }
                 }
-
+                //numerical value for the variable recieved
                 value = stoi(line.substr(start_index, end_index-start_index), &sz);
                 //cout << value << endl;
 
+                //if a variable is added later it must be registered in this switch
                 switch(counter)
                 {
                     case 1: freelist_size = value;
@@ -91,7 +96,7 @@ void readConfig()
                             break;
 
                     default:
-                            cerr << "Error in switch statement for config read in" << endl; 
+                            cerr << "Error in switch statement for config read" << endl; 
                             break;
                 }
 
@@ -116,7 +121,7 @@ void readConfig()
 }
 
 //custom comparator for the priority queue
-bool pair_greater(pair<time_t, Userdata*> a, pair<time_t, Userdata*> b)
+bool pair_greater(pair<TIME_TYPE, Userdata*> a, pair<TIME_TYPE, Userdata*> b)
 {
     if(a.first > b.first)
     {
@@ -137,32 +142,28 @@ void start()
     Freelist* freelist = new Freelist(freelist_size); //freelist
     
     //priority queue for expiring data
-    priority_queue<pair<time_t, Userdata*>, vector<pair<time_t, Userdata*> >,\
-     function<bool(pair<time_t, Userdata*> , pair<time_t, Userdata*>)> > pQueue(pair_greater);
+    priority_queue<pair<TIME_TYPE, Userdata*>, vector<pair<TIME_TYPE, Userdata*> >,\
+     function<bool(pair<TIME_TYPE, Userdata*> , pair<TIME_TYPE, Userdata*>)> > pQueue(pair_greater);
 
     map<string, int> floodMap; //flood map
-    map<string, map<string, time_t> > ipMap; //ip map, ip -> map<usr, num_occurances>
-    map<string, map<string, time_t> > userMap; //user map, username -> map<ip, num occurances>
+    map<string, map<string, TIME_TYPE> > ipMap; //ip map, ip -> map<usr, expr time>
+    map<string, map<string, TIME_TYPE> > userMap; //user map, username -> map<ip, expr time>
     
     string lineInput;
-    system_clock::time_point currentTime = system_clock::now();
-    time_t tt;
+    TIME_TYPE currentWorkingTime;
     
     while (getline(cin,lineInput))
-    {
-        currentTime = system_clock::now(); //get current time
+    {      
+        currentWorkingTime = toTimeType(lineInput);
 
-        //change this to take timestamp from line
-        tt = system_clock::to_time_t(currentTime); //format
-        
         lineNumber++;
 
     //set record info
         //cout << "Setting record info" << endl;
         Userdata* record = freelist->getNode(testLine); //no timestamps yet
-        record->floodStamp = tt + flood_lookahead;
-        record->userStamp  = tt + user_lookahead;
-        record->ipStamp = tt + ip_lookahead;
+        record->floodStamp = incrementTimeStamp(currentWorkingTime, flood_lookahead);
+        record->userStamp  = incrementTimeStamp(currentWorkingTime, user_lookahead);
+        record->ipStamp = incrementTimeStamp(currentWorkingTime, ip_lookahead);
 
     //put in queue
         //cout << "Queueing data" << endl;
