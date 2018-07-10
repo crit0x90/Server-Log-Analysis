@@ -9,6 +9,7 @@ using namespace std;
 
 map<string, int> monthMap;
 map<int, string> reverseMonthMap;
+typedef unsigned long int TIME_TYPE;
 
 void populateMonthMap()
 {
@@ -97,15 +98,17 @@ string toReadableTime(unsigned long long int integerTime)
 
 unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 {
-
+	
+	return 1;
 }
 
 int main()
 {
+	
 	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:38 -0700]";
 	string readableTime;
 	unsigned long long int TIME_TYPE;
-	long int lookahead = 10;
+	long int lookahead = 689;
 
 	populateMonthMap();
 	populateReverseMonthMap();
@@ -113,11 +116,41 @@ int main()
 	TIME_TYPE = toTimeType(testLine);
 	readableTime = toReadableTime(TIME_TYPE);
 
-	cout << "Derived time: " << TIME_TYPE << endl;
+	cout << endl <<"Derived time: " << TIME_TYPE << endl;
 	cout << "Readable time: " << readableTime << endl;
 
-	incrementTimeStamp(TIME_TYPE, lookahead);
+	//incrementTimeStamp(TIME_TYPE, lookahead);
 	cout << "Lookahead distance: " << lookahead << endl;
+	
+	int days = lookahead / 84600;
+	cout << "Days: " << days << endl;
+	lookahead = lookahead % 84600;
+
+	int hours = lookahead / 3600;
+	cout << "Hours: " << hours << endl; 
+	lookahead = lookahead % 3600;
+
+	int minutes = lookahead / 60;
+	cout << "Minutes: " << minutes << endl;
+	lookahead = lookahead % 60;
+
+	int seconds = lookahead;
+	cout << "Seconds: " << seconds << endl;
+
+	TIME_TYPE += (days * 1000000);
+	TIME_TYPE += (hours * 10000);
+	TIME_TYPE += (minutes * 100);
+	TIME_TYPE += seconds;
+
+	//At this stage the time has the correct amounts added
+	//but the form may be incorrect. i.e. there may be > 60
+	//hours/minutes/seconds
+	
+
+	cout << "Modified derived time: " << TIME_TYPE << endl;
+	cout << "Modified time: " << toReadableTime(TIME_TYPE) << endl;
+
+	//solution to this problem goes here
 
 	return 0;
 }

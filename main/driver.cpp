@@ -186,10 +186,10 @@ void start()
         }
 
         //update ip map
-        ipMap[record->IPaddress][record->username] = tt;
+        ipMap[record->IPaddress][record->username] = currentWorkingTime;
 
         //update user map
-        userMap[record->username][record->IPaddress] = tt;
+        userMap[record->username][record->IPaddress] = currentWorkingTime;
 
     //check if alert is triggered
         //cout << "Checking for alert triggers" << endl;
@@ -201,7 +201,7 @@ void start()
             cout << "Line number: " << lineNumber << endl;
             cout << "Username: " << record->username << endl;
             cout << "IPaddress: " << record->IPaddress << endl;
-            cout << "Timestamp: " << ctime(&record->floodStamp) << endl;
+            cout << "Timestamp: " << toReadableTime(record->floodStamp) << endl;
 
             floodMap[record->IPaddress] = 0;
             alertAdministrator(make_tuple("FLOODING", lineNumber, record->username, record->IPaddress, record->floodStamp));
@@ -215,7 +215,7 @@ void start()
             cout << "Line number: " << lineNumber << endl;
             cout << "Username: " << record->username << endl;
             cout << "IPaddress: " << record->IPaddress << endl;
-            cout << "Timestamp: " << ctime(&record->ipStamp) << endl;
+            cout << "Timestamp: " << toReadableTime(record->ipStamp) << endl;
             ipMap.erase(record->IPaddress);   
             alertAdministrator(make_tuple("IP", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
@@ -228,25 +228,20 @@ void start()
             cout << "Line number: " << lineNumber << endl;
             cout << "Username: " << record->username << endl;
             cout << "IPaddress " << record->IPaddress << endl;            
-            cout << "Timestamp: " << ctime(&record->userStamp) << endl;
+            cout << "Timestamp: " << toReadableTime(record->userStamp) << endl;
             ipMap.erase(record->IPaddress);
             alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
     //expire data
         Userdata* comp_node;
-        while(tt >= pQueue.top().first)
+        while(currentWorkingTime >= pQueue.top().first)
         {
             //cout << "Expiring data" << endl;
             comp_node = pQueue.top().second;
-            /*
-            cout << ctime(&tt) << endl;
-            cout << ctime(&comp_node->floodStamp) << endl;
-            cout << ctime(&comp_node->ipStamp) << endl;
-            */
-            
+
             //flood expire
-            if(tt >= comp_node->floodStamp)
+            if(currentWorkingTime >= comp_node->floodStamp)
             {
                 floodMap[record->IPaddress]--;
                 //cout << comp_node->floodStamp << endl;
@@ -265,7 +260,7 @@ void start()
             }
 
             //ip expire
-            if(tt >= comp_node->ipStamp)
+            if(currentWorkingTime >= comp_node->ipStamp)
             {
                 //if the current nodes ip timestamp is the same as the most recent time
                 //stamp on that nodes user in the ip map then expire that user
@@ -289,10 +284,10 @@ void start()
             }
 
             //user expire
-            if(tt >= comp_node->userStamp)
+            if(currentWorkingTime >= comp_node->userStamp)
             {   
                 //if the current nodes user timestamp is the same as the most recent time
-                //stamp on that nodes ip in the user map then expire that ip
+                //stamp on that nodes ip address in the user map, then expire that ip
                 comp_node->userStamp = -1;
 
                 if(comp_node->userStamp == ipMap[comp_node->username][comp_node->IPaddress])

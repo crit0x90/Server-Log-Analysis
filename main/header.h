@@ -60,9 +60,6 @@ void freeNode(Userdata* node);
 //sends the administrator the report
 void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t);
 
-//gets the time information given a raw input string
-time_t getTimestamp(string raw_line);
-
 //extracts time from line and converts into numerical representation
 TIME_TYPE toTimeType(string raw_line);
 
