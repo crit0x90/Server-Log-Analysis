@@ -105,7 +105,7 @@ unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahea
 int main()
 {
 	
-	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:00:01:38 -0700]";
+	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:14:01:38 -0700]";
 	string readableTime;
 	unsigned long long int TIME_TYPE;
 	long int lookahead = 689;
@@ -150,7 +150,37 @@ int main()
 	cout << "Modified derived time: " << TIME_TYPE << endl;
 	cout << "Modified time: " << toReadableTime(TIME_TYPE) << endl;
 
-	//solution to this problem goes here
+	//fix seconds
+	if(TIME_TYPE % 100 > 59)
+	{
+		cout << "Fixing seconds" << endl;
+		int addMinutes = (TIME_TYPE % 100) / 60;
+		//cout << "Adding " << addMinutes << " minutes" << endl;
+		TIME_TYPE -= (60 * addMinutes);
+		TIME_TYPE += (100 * addMinutes);
+	}
+
+	//fix minutes
+	if((TIME_TYPE % 10000) / 1000 > 59)
+	{
+		cout << "Fixing minutes" << endl;
+
+	}
+
+	//fix hours
+	if((TIME_TYPE % 1000000) / 10000 > 23)
+	{
+		cout << "Fixing hours" << endl;
+	}
+
+	//fix days
+
+	//fix months
+
+	
+
+	cout << endl << "Adjusted modified derived time: " << TIME_TYPE << endl;
+	cout << "Adjusted modified time: " << toReadableTime(TIME_TYPE) << endl;
 
 	return 0;
 }
