@@ -9,6 +9,7 @@ using namespace std;
 
 map<string, int> monthMap;
 map<int, string> reverseMonthMap;
+map<int, int> daycountMap;
 typedef unsigned long int TIME_TYPE;
 
 void populateMonthMap()
@@ -41,6 +42,22 @@ void populateReverseMonthMap()
 	reverseMonthMap.insert(make_pair(10, "Oct"));
 	reverseMonthMap.insert(make_pair(11, "Nov"));
 	reverseMonthMap.insert(make_pair(12, "Dec"));
+}
+
+void populateDaycountMap()
+{
+	daycountMap.insert(make_pair(1, 31));
+	daycountMap.insert(make_pair(2, 28));
+	daycountMap.insert(make_pair(3, 31));
+	daycountMap.insert(make_pair(4, 30));
+	daycountMap.insert(make_pair(5, 31));
+	daycountMap.insert(make_pair(6, 30));
+	daycountMap.insert(make_pair(7, 31));
+	daycountMap.insert(make_pair(8, 31));
+	daycountMap.insert(make_pair(9, 30));
+	daycountMap.insert(make_pair(10, 31));
+	daycountMap.insert(make_pair(11, 30));
+	daycountMap.insert(make_pair(12, 31));
 }
 
 unsigned long long int toTimeType(string data)
@@ -112,6 +129,7 @@ int main()
 
 	populateMonthMap();
 	populateReverseMonthMap();
+	populateDaycountMap();
 
 	TIME_TYPE = toTimeType(testLine);
 	readableTime = toReadableTime(TIME_TYPE);
@@ -171,12 +189,20 @@ int main()
 	if((TIME_TYPE % 1000000) / 10000 > 23)
 	{
 		cout << "Fixing hours" << endl;
+
 	}
 
 	//fix days
+	if((TIME_TYPE % 100000000) / 1000000 > daycountMap[((TIME_TYPE % 10000000000) / 100000000)])
+	{
+		cout << "Fixing days" << endl;
+	}
 
 	//fix months
-
+	if((TIME_TYPE % 10000000000) / 100000000 > 12)
+	{
+		cout << "Fixing months" << endl;
+	}
 	
 
 	cout << endl << "Adjusted modified derived time: " << TIME_TYPE << endl;
