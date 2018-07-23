@@ -10,7 +10,7 @@ using namespace std;
 map<string, int> monthMap;
 map<int, string> reverseMonthMap;
 map<int, int> daycountMap;
-typedef unsigned long int TIME_TYPE;
+typedef unsigned long long int TIME_TYPE;
 
 void populateMonthMap()
 {
@@ -95,7 +95,7 @@ unsigned long long int toTimeType(string data)
 	return timestamp;
 }
 
-string toReadableTime(unsigned long long int integerTime)
+string toReadableTime(TIME_TYPE integerTime)
 {
 	string readableTime = "20";
 	string intTime = to_string(integerTime);
@@ -115,31 +115,7 @@ string toReadableTime(unsigned long long int integerTime)
 
 unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 {
-	
-	return 1;
-}
-
-int main()
-{
-	
-	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [04/Sep/2017:14:01:38 -0700]";
-	string readableTime;
-	unsigned long long int TIME_TYPE;
-	long int lookahead = 689;
-
-	populateMonthMap();
-	populateReverseMonthMap();
-	populateDaycountMap();
-
-	TIME_TYPE = toTimeType(testLine);
-	readableTime = toReadableTime(TIME_TYPE);
-
-	cout << endl <<"Derived time: " << TIME_TYPE << endl;
-	cout << "Readable time: " << readableTime << endl;
-
-	//incrementTimeStamp(TIME_TYPE, lookahead);
-	cout << "Lookahead distance: " << lookahead << endl;
-	
+		
 	int days = lookahead / 84600;
 	cout << "Days: " << days << endl;
 	lookahead = lookahead % 84600;
@@ -155,58 +131,91 @@ int main()
 	int seconds = lookahead;
 	cout << "Seconds: " << seconds << endl;
 
-	TIME_TYPE += (days * 1000000);
-	TIME_TYPE += (hours * 10000);
-	TIME_TYPE += (minutes * 100);
-	TIME_TYPE += seconds;
+	old_stamp += (days * 1000000);
+	old_stamp += (hours * 10000);
+	old_stamp += (minutes * 100);
+	old_stamp += seconds;
 
 	//At this stage the time has the correct amounts added
 	//but the form may be incorrect. i.e. there may be > 60
 	//hours/minutes/seconds
 	
+	cout << "Incremented derived time: " << old_stamp << endl;
+	cout << "Incremented time: " << toReadableTime(old_stamp) << endl;
 
-	cout << "Modified derived time: " << TIME_TYPE << endl;
-	cout << "Modified time: " << toReadableTime(TIME_TYPE) << endl;
-
-	//fix seconds
-	if(TIME_TYPE % 100 > 59)
+	//fix seconds - done
+	if(old_stamp % 100 > 59)
 	{
 		cout << "Fixing seconds" << endl;
-		int addMinutes = (TIME_TYPE % 100) / 60;
+		int addMinutes = (old_stamp % 100) / 60;
 		//cout << "Adding " << addMinutes << " minutes" << endl;
-		TIME_TYPE -= (60 * addMinutes);
-		TIME_TYPE += (100 * addMinutes);
+		old_stamp -= (60 * addMinutes);
+		old_stamp += (100 * addMinutes);
 	}
 
-	//fix minutes
-	if((TIME_TYPE % 10000) / 1000 > 59)
+	//fix minutes - done
+	if((old_stamp % 10000) / 100 > 59)
 	{
 		cout << "Fixing minutes" << endl;
-
+		int addHours = ((old_stamp % 10000) / 100) / 60;
+		//cout << "Adding " << addHours << " hours" << endl;
+		old_stamp -= (6000 * addHours);
+		old_stamp += (10000 * addHours);
 	}
 
-	//fix hours
-	if((TIME_TYPE % 1000000) / 10000 > 23)
+	//fix hours - done
+	if((old_stamp % 1000000) / 10000 > 23)
 	{
 		cout << "Fixing hours" << endl;
+		int addDays = ((old_stamp % 1000000) / 10000) / 24;
 
+		old_stamp -= (240000 * addDays);
+		old_stamp += (1000000 * addDays);
 	}
 
-	//fix days
-	if((TIME_TYPE % 100000000) / 1000000 > daycountMap[((TIME_TYPE % 10000000000) / 100000000)])
+	//fix days - done
+	if((old_stamp % 100000000) / 1000000 > daycountMap[((old_stamp % 10000000000) / 100000000)])
 	{
 		cout << "Fixing days" << endl;
+		int addMonths = ((old_stamp % 100000000) / 1000000) / \
+			daycountMap[((old_stamp % 10000000000) / 100000000)];
+		
+		old_stamp -= ((daycountMap[((old_stamp % 10000000000) / 100000000)] * 1000000) * addMonths);
+		old_stamp += (100000000 * addMonths);
 	}
 
-	//fix months
-	if((TIME_TYPE % 10000000000) / 100000000 > 12)
+	//fix months - 
+	if((old_stamp % 10000000000) / 100000000 > 12)
 	{
 		cout << "Fixing months" << endl;
+		int addYears = ((old_stamp % 10000000000) / 100000000)
 	}
-	
 
-	cout << endl << "Adjusted modified derived time: " << TIME_TYPE << endl;
-	cout << "Adjusted modified time: " << toReadableTime(TIME_TYPE) << endl;
+	return old_stamp;
+}
+
+int main()
+{
+	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [31/Sep/2017:20:00:00 -0700]";
+	string readableTime;
+	TIME_TYPE CURRENT_STAMP;
+	long int lookahead = 10;
+
+	populateMonthMap();
+	populateReverseMonthMap();
+	populateDaycountMap();
+
+	CURRENT_STAMP = toTimeType(testLine);
+	readableTime = toReadableTime(CURRENT_STAMP);
+
+	cout << endl <<"Derived time: " << CURRENT_STAMP << endl;
+	cout << "Readable time: " << readableTime << endl;
+
+	cout << "Lookahead distance: " << lookahead << endl;
+	CURRENT_STAMP = incrementTimeStamp(CURRENT_STAMP, lookahead);
+
+	cout << endl << "Adjusted incremented derived time: " << CURRENT_STAMP << endl;
+	cout << "Adjusted incremented time: " << toReadableTime(CURRENT_STAMP) << endl;
 
 	return 0;
 }
