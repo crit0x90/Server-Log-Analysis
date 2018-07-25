@@ -35,6 +35,7 @@ void readConfig()
 {
     populateMonthMap();
     populateReverseMonthMap();
+    populateDaycountMap();
     string line;
     int value = 0;
     int counter = 1;

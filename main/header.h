@@ -42,7 +42,6 @@ private:
 protected:
 };
 
-
 //utility functions
 
 //splits a string apart at the spaces and returns a vector
@@ -59,6 +58,15 @@ void freeNode(Userdata* node);
 
 //sends the administrator the report
 void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t);
+
+//for use with incrementTimeStamp
+void populateMonthMap();
+
+//for use with incrementTimeStamp
+void populateReverseMonthMap();
+
+//for use with incrementTimeStamp
+void populateDaycountMap();
 
 //extracts time from line and converts into numerical representation
 TIME_TYPE toTimeType(string raw_line);

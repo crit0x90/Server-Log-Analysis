@@ -60,7 +60,7 @@ void populateDaycountMap()
 	daycountMap.insert(make_pair(12, 31));
 }
 
-unsigned long long int toTimeType(string data)
+TIME_TYPE toTimeType(string data)
 {
 	//initialization
 	typedef vector<string> split_vector_type;
@@ -113,9 +113,11 @@ string toReadableTime(TIME_TYPE integerTime)
 	return readableTime;
 }
 
-unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
+//if anyone ever has to debug this I am sorry for this mess, I owe you a beer
+//this function basically fixes any illegalities in the time formatting
+//(i.e. > 59 seconds in the seconds field)
+TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 {
-		
 	int days = lookahead / 84600;
 	cout << "Days: " << days << endl;
 	lookahead = lookahead % 84600;
@@ -188,7 +190,11 @@ unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahea
 	if((old_stamp % 10000000000) / 100000000 > 12)
 	{
 		cout << "Fixing months" << endl;
-		int addYears = ((old_stamp % 10000000000) / 100000000)
+		int addYears = ((old_stamp % 10000000000) / 100000000) / 13;
+		
+		old_stamp -= (1200000000);
+		old_stamp += (10000000000 * addYears);
+		cout << addYears << endl;
 	}
 
 	return old_stamp;
@@ -196,7 +202,7 @@ unsigned long long int incrementTimeStamp(TIME_TYPE old_stamp, long int lookahea
 
 int main()
 {
-	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [31/Sep/2017:20:00:00 -0700]";
+	string testLine = "IP7379 [yfsOU0T2XLuEfWr] user1624 [31/Dec/2017:23:59:50 -0700]";
 	string readableTime;
 	TIME_TYPE CURRENT_STAMP;
 	long int lookahead = 10;
@@ -208,7 +214,7 @@ int main()
 	CURRENT_STAMP = toTimeType(testLine);
 	readableTime = toReadableTime(CURRENT_STAMP);
 
-	cout << endl <<"Derived time: " << CURRENT_STAMP << endl;
+	cout << endl << "Derived time: " << CURRENT_STAMP << endl;
 	cout << "Readable time: " << readableTime << endl;
 
 	cout << "Lookahead distance: " << lookahead << endl;

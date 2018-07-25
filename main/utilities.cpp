@@ -11,6 +11,7 @@ using namespace std;
 
 map<string, int> monthMap;
 map<int, string> reverseMonthMap;
+map<int, int> daycountMap;
 typedef unsigned long int TIME_TYPE;
 
 vector<string> splitVector(string data)
@@ -101,6 +102,22 @@ void populateReverseMonthMap()
 	reverseMonthMap.insert(make_pair(12, "Dec"));
 }
 
+void populateDaycountMap()
+{
+	daycountMap.insert(make_pair(1, 31));
+	daycountMap.insert(make_pair(2, 28));
+	daycountMap.insert(make_pair(3, 31));
+	daycountMap.insert(make_pair(4, 30));
+	daycountMap.insert(make_pair(5, 31));
+	daycountMap.insert(make_pair(6, 30));
+	daycountMap.insert(make_pair(7, 31));
+	daycountMap.insert(make_pair(8, 31));
+	daycountMap.insert(make_pair(9, 30));
+	daycountMap.insert(make_pair(10, 31));
+	daycountMap.insert(make_pair(11, 30));
+	daycountMap.insert(make_pair(12, 31));
+}
+
 TIME_TYPE toTimeType(string raw_line)
 {
 	//initialization
@@ -162,31 +179,94 @@ string toReadableTime(TIME_TYPE integerTime)
 TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 {
 	//this function assumes that the lookahead is <= 86400 (1 day)
-	int day = 0; 
-	int hours = 0;
-	int minutes = 0;
-	int seconds = 0;
+	int days = lookahead / 84600;
+	//cout << "Days: " << days << endl;
+	lookahead = lookahead % 84600;
+
+	int hours = lookahead / 3600;
+	//cout << "Hours: " << hours << endl; 
+	lookahead = lookahead % 3600;
+
+	int minutes = lookahead / 60;
+	//cout << "Minutes: " << minutes << endl;
+	lookahead = lookahead % 60;
+
+	int seconds = lookahead;
+	//cout << "Seconds: " << seconds << endl;
 
 	if(lookahead > 86400 || lookahead < 0)
 	{	
 		cerr << "---Error recieved in incrementTimeStamp---" << endl;
 		cerr << "Lookahead value has exceeded maximum limit. \t Value: " << lookahead << endl;
+		exit(0);
 	}
 	else
 	{
-		day = lookahead / 86400;
-		lookahead = lookahead % 86400;
+		old_stamp += (days * 1000000);
+		old_stamp += (hours * 10000);
+		old_stamp += (minutes * 100);
+		old_stamp += seconds;
 
-		hours = lookahead / 3600;
-		lookahead = lookahead % 3600;
+		//At this stage the time has the correct amounts added
+		//but the form may be incorrect. i.e. there may be > 60
+		//hours/minutes/seconds
+		
+		cout << "Incremented derived time: " << old_stamp << endl;
+		cout << "Incremented time: " << toReadableTime(old_stamp) << endl;
 
-		minutes = lookahead / 60;
-		lookahead = lookahead % 60;
+		//fix seconds - done
+		if(old_stamp % 100 > 59)
+		{
+			cout << "Fixing seconds" << endl;
+			int addMinutes = (old_stamp % 100) / 60;
+			//cout << "Adding " << addMinutes << " minutes" << endl;
+			old_stamp -= (60 * addMinutes);
+			old_stamp += (100 * addMinutes);
+		}
 
-		seconds = lookahead;
+		//fix minutes - done
+		if((old_stamp % 10000) / 100 > 59)
+		{
+			cout << "Fixing minutes" << endl;
+			int addHours = ((old_stamp % 10000) / 100) / 60;
+			//cout << "Adding " << addHours << " hours" << endl;
+			old_stamp -= (6000 * addHours);
+			old_stamp += (10000 * addHours);
+		}
+
+		//fix hours - done
+		if((old_stamp % 1000000) / 10000 > 23)
+		{
+			cout << "Fixing hours" << endl;
+			int addDays = ((old_stamp % 1000000) / 10000) / 24;
+
+			old_stamp -= (240000 * addDays);
+			old_stamp += (1000000 * addDays);
+		}
+
+		//fix days - done
+		if((old_stamp % 100000000) / 1000000 > daycountMap[((old_stamp % 10000000000) / 100000000)])
+		{
+			cout << "Fixing days" << endl;
+			int addMonths = ((old_stamp % 100000000) / 1000000) / \
+				daycountMap[((old_stamp % 10000000000) / 100000000)];
+			
+			old_stamp -= ((daycountMap[((old_stamp % 10000000000) / 100000000)] * 1000000) * addMonths);
+			old_stamp += (100000000 * addMonths);
+		}
+
+		//fix months - done
+		if((old_stamp % 10000000000) / 100000000 > 12)
+		{
+			cout << "Fixing months" << endl;
+			int addYears = ((old_stamp % 10000000000) / 100000000) / 13;
+			
+			old_stamp -= (1200000000);
+			old_stamp += (10000000000 * addYears);
+			cout << addYears << endl;
+		}
+
+		return old_stamp;
 	}
-
 	//add the computed values to the timestamp 
-
-	
 }
