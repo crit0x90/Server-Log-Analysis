@@ -163,6 +163,8 @@ TIME_TYPE toTimeType(string data)
 	timestamp = timestamp + (stoi(hours, &sz) * 10000); //10,000
 	timestamp = timestamp + (stoi(minutes, &sz) * 100);
 	timestamp = timestamp + (stoi(seconds, &sz));
+
+	//return time as YYMMDDHHMMSS
 	return timestamp;
 }
 
@@ -265,17 +267,55 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, int lookahead)
 		
 		old_stamp -= (1200000000);
 		old_stamp += (10000000000 * addYears);
-		cout << addYears << endl;
+		//cout << addYears << endl;
 	}
 
 	return old_stamp;
 }
 
-//this function check to make sure that there are no invalidities in the
-//form of the stamp
+//checks form of the stamp
 void checkStamp(TIME_TYPE stamp)
 {
-	//TESTS GO HERE
+	//cout << "Initial stamp: " << stamp << endl;
+
+	//there shouldnt need to be a years test
+	//cout << "Years: " << stamp / 10000000000 << endl;
+
+	//months
+	if((stamp % 10000000000) / 100000000 > 12 || (stamp % 10000000000) / 100000000 < 1)
+	{
+		cerr << "ERROR: Timestamp " << stamp << " is invalid (months)" << endl;
+		cin.get();
+	}
+
+	//days
+	if((stamp % 100000000) / 1000000 > daycountMap[(stamp % 10000000000) / 100000000] || \
+		(stamp % 100000000) / 1000000 < 1)
+	{
+		cerr << "ERROR: Timestamp " << stamp << " is invalid (days)" << endl;
+		cin.get();
+	}
+
+	//hours
+	if((stamp % 1000000) / 10000 > 23 || (stamp % 1000000) / 10000 < 0)
+	{
+		cerr << "ERROR: Timestamp " << stamp << " is invalid (minutes)" << endl;
+		cin.get();
+	}
+
+	//minutes
+	if((stamp % 10000) / 100 > 59 || (stamp % 10000) / 100 < 0)
+	{
+		cerr << "ERROR: Timestamp " << stamp << " is invalid (hours)" << endl;
+		cin.get();
+	}
+
+	//seconds
+	if(stamp % 100 > 59 || stamp % 100 < 0)
+	{
+		cerr << "ERROR: Timestamp " << stamp << " is invalid (minutes)" << endl;
+		cin.get();
+	}
 }
 
 int main()
@@ -319,7 +359,8 @@ int main()
 
 	string stamp;
 	TIME_TYPE modifiedStamp;
-	for(int i = 0; i < 84600; i++)
+
+	for(int i = 84600; i > 0; i--)
 	{
 		cout << "Iteration " << i << " of 84600" << endl;
 		for(int j = 0; j < dateVector.size(); j++)
