@@ -138,7 +138,8 @@
 	free list via the getNode function for parsing. This function extracted the
 	needed data from the line (username and IP address), put it into a node from
 	the freelist, and then returned the node. Once this node was obtained by the 
-	main loop it was time stamped with the current time added with the appropriate	lookahead distances.
+	main loop it was time stamped with the current time added with the appropriate	
+	lookahead distances.
 	
 	\subsection*{Priority Queue}
 	The priority queue was the data	structure responsible for managing when data 
@@ -270,7 +271,7 @@
 \section*{Future Work}
 	Although this project was successful at a base level, there are still many 
 	features that would be useful and would increase the effectiveness of this
-	program. The following are several ideas that may prove to be userful and 
+	program. The following are several ideas that may prove to be useful and 
 	interesting work. \\
 
 	\noindent
@@ -314,5 +315,21 @@
 	the response time of any retalitory action that would normally come from
 	the system administrator. \\
 
+\section*{Additions}
+	As of 1 August 2018, this program is capable of reading from a pregenerated
+	file rather than just from a constant stream of input. This feature was added
+	to make testing and configuring the program much faster. In order to implement
+	this there were some major changes to the way that timestamps were created and
+	processed that were necessary. In the previous version, a record was created
+	from a line and then, to save time, this record was just stamped with the 
+	current system time. The problem with this was that when you went to test the
+	program this forced you to run your tests in real time. This made configuring 
+	the program extremely difficult because you had to wait in real time for the 
+	log to finish processing before you could observe the results of the tests
+	and make any config adjustments. By pulling the time from the timestamp 
+	included in the line from the log file, we are able to avoid this problem at 
+	the cost of more processing time per record. Another benefit of doing the 
+	timestamping in this way is that if there is a major flood of requests and our 
+	data pipeline gets backed up the timestamping will will not be affected. 
 
 \end{document}

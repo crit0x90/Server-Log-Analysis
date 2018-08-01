@@ -211,8 +211,8 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//but the form may be incorrect. i.e. there may be > 60
 		//hours/minutes/seconds
 		
-		cout << "Incremented derived time: " << old_stamp << endl;
-		cout << "Incremented time: " << toReadableTime(old_stamp) << endl;
+		//cout << "Incremented derived time: " << old_stamp << endl;
+		//cout << "Incremented time: " << toReadableTime(old_stamp) << endl;
 
 		//fix seconds - done
 		if(old_stamp % 100 > 59)
