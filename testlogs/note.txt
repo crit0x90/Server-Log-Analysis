@@ -1,0 +1,3 @@
+The log files that were used to test this program were in the form:
+
+IPaddress [token] username [DD/MMM/YYYY:HH:MM:SS -status] URL Useragent_info
