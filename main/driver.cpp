@@ -30,7 +30,7 @@ using namespace std;
     long int user_lookahead = 5;
     long int ip_lookahead = 5;
 
-typedef unsigned long int TIME_TYPE;
+typedef long int TIME_TYPE;
 
 void readConfig()
 {
@@ -108,6 +108,7 @@ void readConfig()
     else
     {
         cerr << "ERROR: UNABLE TO OPEN CONFIG FILE" << endl;
+        exit(0);
     }
 
     cout << "freelist_size: " << freelist_size << endl;
@@ -221,7 +222,7 @@ void start()
             alertAdministrator(make_tuple("IP", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
-        if(userMap[record->username].size() > userThreshold)
+        if(userMap[record->username].size() > userThreshold && (record->username != "-"))
         {
             uAlertCount++;
             alertCount++;
@@ -230,7 +231,7 @@ void start()
             cout << "Username: " << record->username << endl;
             cout << "IPaddress " << record->IPaddress << endl;            
             cout << "Timestamp: " << toReadableTime(record->userStamp) << endl;
-            ipMap.erase(record->IPaddress);
+            userMap.erase(record->IPaddress);
             alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
@@ -293,7 +294,7 @@ void start()
 
                 if(comp_node->userStamp == ipMap[comp_node->username][comp_node->IPaddress])
                 {
-                    ipMap[record->username].erase(comp_node->IPaddress);
+                    userMap[record->username].erase(comp_node->IPaddress);
                 }
 
                 //if no unexpired data left return to free list
@@ -333,6 +334,7 @@ void prewrittenStart(string filename)
     map<string, map<string, TIME_TYPE> > ipMap; //ip map, ip -> map<usr, expr time>
     map<string, map<string, TIME_TYPE> > userMap; //user map, username -> map<ip, expr time>
     
+    int nodeCounter = 0;
     string lineInput;
     ifstream inputfile(filename);
     TIME_TYPE currentWorkingTime;
@@ -355,6 +357,8 @@ void prewrittenStart(string filename)
             record->floodStamp = incrementTimeStamp(currentWorkingTime, flood_lookahead);
             record->userStamp  = incrementTimeStamp(currentWorkingTime, user_lookahead);
             record->ipStamp = incrementTimeStamp(currentWorkingTime, ip_lookahead);
+            record->nodeNumber = nodeCounter;
+            nodeCounter++;
 
         //put in queue
             //cout << "Queueing data" << endl;
@@ -365,7 +369,7 @@ void prewrittenStart(string filename)
         //update data structures
             //cout << "Updating data structures" << endl;
             //update flood map
-            if(floodMap.count(record->IPaddress))
+            if(floodMap.count(record->IPaddress) > 0)
             {
                 //the key is already in the map
                 floodMap[record->IPaddress]++;
@@ -395,7 +399,7 @@ void prewrittenStart(string filename)
                 cout << "Timestamp: " << toReadableTime(record->floodStamp) << endl;
 
                 floodMap[record->IPaddress] = 0;
-                alertAdministrator(make_tuple("FLOODING", lineNumber, record->username, record->IPaddress, record->floodStamp));
+                alertAdministrator(make_tuple("FLOODING", lineNumber, record->username, record->IPaddress, currentWorkingTime));
             }
 
             if(ipMap[record->IPaddress].size() > ipThreshold)
@@ -408,10 +412,10 @@ void prewrittenStart(string filename)
                 cout << "IPaddress: " << record->IPaddress << endl;
                 cout << "Timestamp: " << toReadableTime(record->ipStamp) << endl;
                 ipMap.erase(record->IPaddress);   
-                alertAdministrator(make_tuple("IP", lineNumber, record->username, record->IPaddress, record->floodStamp));
+                alertAdministrator(make_tuple("IP", lineNumber, record->username, record->IPaddress, currentWorkingTime));
             }
 
-            if(userMap[record->username].size() > userThreshold)
+            if(userMap[record->username].size() > userThreshold && (record->username != "-"))
             {
                 uAlertCount++;
                 alertCount++;
@@ -420,8 +424,8 @@ void prewrittenStart(string filename)
                 cout << "Username: " << record->username << endl;
                 cout << "IPaddress " << record->IPaddress << endl;            
                 cout << "Timestamp: " << toReadableTime(record->userStamp) << endl;
-                ipMap.erase(record->IPaddress);
-                alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, record->floodStamp));
+                userMap.erase(record->username);
+                alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, currentWorkingTime));
             }
 
         //expire data
@@ -431,85 +435,110 @@ void prewrittenStart(string filename)
                 //cout << "Expiring data" << endl;
                 comp_node = pQueue.top().second;
 
-                //flood expire
-                if(currentWorkingTime >= comp_node->floodStamp)
+                /*
+                cout << "Node number " << comp_node->nodeNumber << endl;
+                cout << "currtime: " << toReadableTime(currentWorkingTime) << endl;
+                cout << "currtime: " << currentWorkingTime << endl;
+                if(comp_node->floodStamp != -1)
                 {
-                    floodMap[record->IPaddress]--;
+                    cout << "flood stamptime: " << comp_node->floodStamp << endl;
+                    cout << "user stamptime: " << comp_node->userStamp << endl;
+                    cout << "ip stamptime: " << comp_node->ipStamp << endl; 
+                    cin.get();
+                    cout << "flood stamptime: " << toReadableTime(comp_node->floodStamp) << endl;
+                    cout << "user stamptime: " << toReadableTime(comp_node->userStamp) << endl;
+                    cout << "ip stamptime: " << toReadableTime(comp_node->ipStamp) << endl; 
+                }
+                */
+
+                //flood expire
+                if(currentWorkingTime >= comp_node->floodStamp && comp_node->floodStamp != -1)
+                {
+                    //cout << "*flood expiring node " << comp_node->nodeNumber << endl;
+                    floodMap[comp_node->IPaddress]--;
                     //cout << comp_node->floodStamp << endl;
                     comp_node->floodStamp = -1;
 
                     //if no unexpired data left return to free list
-                    if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                    if((comp_node->floodStamp < 0) && (comp_node->userStamp < 0) && (comp_node->ipStamp < 0))
                     {
-                        //cout << "Freeing Node" << endl;
+                        //cout << "Freeing Node " << comp_node->nodeNumber << endl;
                         nodesFreed++;
                         freeNode(comp_node); //resets node data
                         //put back on free list
                         comp_node->free_next = freelist->freelist_head;
                         freelist->freelist_head = comp_node;
                     }
+                    pQueue.pop();
+                    continue;
                 }
 
                 //ip expire
-                if(currentWorkingTime >= comp_node->ipStamp)
+                if(currentWorkingTime >= comp_node->ipStamp && comp_node->ipStamp != -1)
                 {
                     //if the current nodes ip timestamp is the same as the most recent time
                     //stamp on that nodes user in the ip map then expire that user
                     comp_node->ipStamp = -1;
-
+                    //cout << "*ip expiring node " << comp_node->nodeNumber << endl;
                     if(comp_node->ipStamp == ipMap[comp_node->IPaddress][comp_node->username])
                     {
-                        ipMap[record->IPaddress].erase(comp_node->username);
+                        ipMap[comp_node->IPaddress].erase(comp_node->username);
                     }
 
                     //if no unexpired data left return to free list
-                    if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                    if((comp_node->floodStamp < 0) && (comp_node->userStamp < 0) && (comp_node->ipStamp < 0))
                     {
+                        //cout << "Freeing Node " << comp_node->nodeNumber << endl;
                         nodesFreed++;
-                        //cout << "Freeing Node" << endl;
                         freeNode(comp_node); //resets node data
                         //put back on free list
                         comp_node->free_next = freelist->freelist_head;
                         freelist->freelist_head = comp_node;
                     }
+                    pQueue.pop();
+                    continue;
                 }
 
                 //user expire
-                if(currentWorkingTime >= comp_node->userStamp)
+                if(currentWorkingTime >= comp_node->userStamp && comp_node->userStamp != -1)
                 {   
                     //if the current nodes user timestamp is the same as the most recent time
                     //stamp on that nodes ip address in the user map, then expire that ip
                     comp_node->userStamp = -1;
 
-                    if(comp_node->userStamp == ipMap[comp_node->username][comp_node->IPaddress])
+                    //cout << "*user expiring node " << comp_node->nodeNumber << endl;
+
+                    if(comp_node->userStamp == userMap[comp_node->username][comp_node->IPaddress])
                     {
-                        ipMap[record->username].erase(comp_node->IPaddress);
+                        userMap[comp_node->username].erase(comp_node->IPaddress);
                     }
 
                     //if no unexpired data left return to free list
-                    if(comp_node->floodStamp < 0 && comp_node->userStamp < 0 && comp_node->ipStamp < 0)
+                    if((comp_node->floodStamp < 0) && (comp_node->userStamp < 0) && (comp_node->ipStamp < 0))
                     {
+                        //cout << "Freeing Node " << comp_node->nodeNumber << endl;
                         nodesFreed++;
-                        //cout << "Freeing Node" << endl;
                         freeNode(comp_node); //resets node data
                         //put back on free list
                         comp_node->free_next = freelist->freelist_head;
                         freelist->freelist_head = comp_node;
                     }
+                    pQueue.pop();
+                    continue;
                 }
-                pQueue.pop();
+                cout << "########" << endl << endl;
+
+                //pQueue.pop();
             }
         }
         inputfile.close();
     }
-    
+    cout << "---------------------------------------------" << endl;
     cout << "Nodes freed: " << nodesFreed << endl;
     cout << "Total alerts sent: " << alertCount << endl;
     cout << "flood alerts sent: " << fAlertCount << endl;
     cout << "User alerts sent: " << uAlertCount << endl;
     cout << "IP alerts sent: " << iAlertCount << endl;
-
-
 }
 
 int main(int argc, char **argv)

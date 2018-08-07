@@ -10,7 +10,7 @@
 
 using namespace std;
 
-typedef unsigned long int TIME_TYPE;
+typedef long int TIME_TYPE;
 
 class Userdata {
 public:
@@ -20,6 +20,7 @@ public:
 
 	string username;
 	string IPaddress;
+	int nodeNumber;
 
 	Userdata* free_next;
 

@@ -24,7 +24,6 @@ Userdata* Freelist::getNode(string raw_line)
 	{
 		//freelist is empty
 		node = new Userdata(getName(raw_line), getIP(raw_line));
-		
 	}
 	else if(freelist_head->free_next == nullptr)
 	{

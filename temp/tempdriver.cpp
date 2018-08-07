@@ -63,7 +63,6 @@ time_t processLine(string name, string ip)
 	//user->floodExpirationTime = system_clock::to_time_t(today);
 	return tt;
 }
-*/
 
 struct record {
 	record(time_t ts, string name)
@@ -76,6 +75,7 @@ struct record {
 	string data;
 };
 
+*/
 /*
 //orders from closest -> furthest  timestamp
 class P_Queue {

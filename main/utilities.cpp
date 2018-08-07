@@ -12,7 +12,7 @@ using namespace std;
 map<string, int> monthMap;
 map<int, string> reverseMonthMap;
 map<int, int> daycountMap;
-typedef unsigned long int TIME_TYPE;
+typedef long int TIME_TYPE;
 
 vector<string> splitVector(string data)
 {
@@ -64,7 +64,7 @@ void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t)
 	outfile << "Reason for alert: " << get<0>(t) << endl;
 	outfile << "Alert recieved at line number: " << get<1>(t) << endl;
 	outfile << "Username of triggering record: " << get<2>(t) << endl;
-	outfile << "IP address of triggering record" << get<3>(t) << endl;
+	outfile << "IP address of triggering record: " << get<3>(t) << endl;
 	outfile << endl;
 
 	outfile.close();
@@ -217,7 +217,7 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//fix seconds - done
 		if(old_stamp % 100 > 59)
 		{
-			cout << "Fixing seconds" << endl;
+			//cout << "Fixing seconds" << endl;
 			int addMinutes = (old_stamp % 100) / 60;
 			//cout << "Adding " << addMinutes << " minutes" << endl;
 			old_stamp -= (60 * addMinutes);
@@ -227,7 +227,7 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//fix minutes - done
 		if((old_stamp % 10000) / 100 > 59)
 		{
-			cout << "Fixing minutes" << endl;
+			//cout << "Fixing minutes" << endl;
 			int addHours = ((old_stamp % 10000) / 100) / 60;
 			//cout << "Adding " << addHours << " hours" << endl;
 			old_stamp -= (6000 * addHours);
@@ -237,7 +237,7 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//fix hours - done
 		if((old_stamp % 1000000) / 10000 > 23)
 		{
-			cout << "Fixing hours" << endl;
+			//cout << "Fixing hours" << endl;
 			int addDays = ((old_stamp % 1000000) / 10000) / 24;
 
 			old_stamp -= (240000 * addDays);
@@ -247,7 +247,7 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//fix days - done
 		if((old_stamp % 100000000) / 1000000 > daycountMap[((old_stamp % 10000000000) / 100000000)])
 		{
-			cout << "Fixing days" << endl;
+			//cout << "Fixing days" << endl;
 			int addMonths = ((old_stamp % 100000000) / 1000000) / \
 				daycountMap[((old_stamp % 10000000000) / 100000000)];
 			
@@ -258,7 +258,7 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 		//fix months - done
 		if((old_stamp % 10000000000) / 100000000 > 12)
 		{
-			cout << "Fixing months" << endl;
+			//cout << "Fixing months" << endl;
 			int addYears = ((old_stamp % 10000000000) / 100000000) / 13;
 			
 			old_stamp -= (1200000000);
