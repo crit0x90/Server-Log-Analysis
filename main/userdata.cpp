@@ -23,3 +23,12 @@ Userdata::Userdata(string name, string IP)
 	userStamp = 0;
 	ipStamp = 0;
 }
+
+void freeNode(Userdata* node)
+{
+	node->username  = "NULLDATA";
+	node->IPaddress = "NULLDATA";
+	node->floodStamp = 0;
+	node->userStamp = 0;
+	node->ipStamp = 0;
+}

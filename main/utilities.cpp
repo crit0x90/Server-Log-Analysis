@@ -46,15 +46,6 @@ string getIP(string raw_line)
     return IP;
 }
 
-void freeNode(Userdata* node)
-{
-	node->username  = "NULLDATA";
-	node->IPaddress = "NULLDATA";
-	node->floodStamp = 0;
-	node->userStamp = 0;
-	node->ipStamp = 0;
-}
-
 void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t)
 {
 	ofstream outfile;
@@ -63,8 +54,8 @@ void alertAdministrator(tuple<string, int, string, string, TIME_TYPE> t)
 	outfile << "Alert recieved at time: " << toReadableTime(get<4>(t)) << endl;
 	outfile << "Reason for alert: " << get<0>(t) << endl;
 	outfile << "Alert recieved at line number: " << get<1>(t) << endl;
-	outfile << "Username of triggering record: " << get<2>(t) << endl;
-	outfile << "IP address of triggering record: " << get<3>(t) << endl;
+	outfile << "Username of triggering record: " << get<2>(t);
+	outfile << "\tIP address of triggering record: " << get<3>(t) << endl;
 	outfile << endl;
 
 	outfile.close();
@@ -270,3 +261,4 @@ TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
 	}
 	//add the computed values to the timestamp 
 }
+

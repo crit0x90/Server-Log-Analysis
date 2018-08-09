@@ -231,7 +231,7 @@ void start()
             cout << "Username: " << record->username << endl;
             cout << "IPaddress " << record->IPaddress << endl;            
             cout << "Timestamp: " << toReadableTime(record->userStamp) << endl;
-            userMap.erase(record->IPaddress);
+            userMap.erase(record->username);
             alertAdministrator(make_tuple("USERNAME", lineNumber, record->username, record->IPaddress, record->floodStamp));
         }
 
@@ -347,9 +347,23 @@ void prewrittenStart(string filename)
             lineNumber++;
             if(lineInput == "")
             {
+                //if newline/emptyline then continue
                 continue;
             }
             currentWorkingTime = toTimeType(lineInput);
+
+        //DEBUG
+            if(lineNumber == 20)
+            {
+                cout << "Printing Pqueue snapshot" << endl;
+                ofstream outfile;
+                outfile.open("PQsnapshot.txt", ios::app);
+
+                outfile << "Priority queue at line number " << linenumber << endl;
+                
+
+                outfile.close();
+            }
 
         //set record info
             //cout << "Setting record info" << endl;
@@ -360,7 +374,7 @@ void prewrittenStart(string filename)
             record->nodeNumber = nodeCounter;
             nodeCounter++;
 
-        //put in queue
+        //put in queue with the modified timestamp as the weight
             //cout << "Queueing data" << endl;
             pQueue.push(make_pair(record->floodStamp, record));
             pQueue.push(make_pair(record->userStamp, record));
@@ -478,7 +492,6 @@ void prewrittenStart(string filename)
                 {
                     //if the current nodes ip timestamp is the same as the most recent time
                     //stamp on that nodes user in the ip map then expire that user
-                    comp_node->ipStamp = -1;
                     //cout << "*ip expiring node " << comp_node->nodeNumber << endl;
                     if(comp_node->ipStamp == ipMap[comp_node->IPaddress][comp_node->username])
                     {
@@ -495,6 +508,7 @@ void prewrittenStart(string filename)
                         comp_node->free_next = freelist->freelist_head;
                         freelist->freelist_head = comp_node;
                     }
+                    comp_node->ipStamp = -1;
                     pQueue.pop();
                     continue;
                 }
@@ -504,10 +518,7 @@ void prewrittenStart(string filename)
                 {   
                     //if the current nodes user timestamp is the same as the most recent time
                     //stamp on that nodes ip address in the user map, then expire that ip
-                    comp_node->userStamp = -1;
-
                     //cout << "*user expiring node " << comp_node->nodeNumber << endl;
-
                     if(comp_node->userStamp == userMap[comp_node->username][comp_node->IPaddress])
                     {
                         userMap[comp_node->username].erase(comp_node->IPaddress);
@@ -523,10 +534,13 @@ void prewrittenStart(string filename)
                         comp_node->free_next = freelist->freelist_head;
                         freelist->freelist_head = comp_node;
                     }
+                    comp_node->userStamp = -1;
                     pQueue.pop();
                     continue;
                 }
-                cout << "########" << endl << endl;
+                
+                cerr << "ERROR: UNEXPECTED CONDITION MET IN DATA EXPIRATION CHECK. TERMINATING" << endl;
+                exit(0);
 
                 //pQueue.pop();
             }
