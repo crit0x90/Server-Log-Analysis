@@ -353,17 +353,30 @@ void prewrittenStart(string filename)
             currentWorkingTime = toTimeType(lineInput);
 
         //DEBUG
-            if(lineNumber == 20)
+        /*
+            if(lineNumber == 100)
             {
                 cout << "Printing Pqueue snapshot" << endl;
                 ofstream outfile;
                 outfile.open("PQsnapshot.txt", ios::app);
 
-                outfile << "Priority queue at line number " << linenumber << endl;
+                outfile << "Priority queue at line number " << lineNumber << endl;
                 
+                while(!pQueue.empty())
+                {
+                    outfile << "--------------------------------------------" << endl;
+                    outfile << "Current time: " <<  toReadableTime(currentWorkingTime) << endl;
+                    outfile << "Name: " << pQueue.top().second->username << endl;
+                    outfile << "IP: " << pQueue.top().second->IPaddress << endl;
+                    outfile << "floodStamp: " << toReadableTime(pQueue.top().second->floodStamp) << endl;
+                    outfile << "userStamp: " << toReadableTime(pQueue.top().second->userStamp) << endl;
+                    outfile << "ipStamp: " << toReadableTime(pQueue.top().second->ipStamp) << endl;
+                    pQueue.pop();  
+                }
 
                 outfile.close();
             }
+        */   
 
         //set record info
             //cout << "Setting record info" << endl;
@@ -395,10 +408,10 @@ void prewrittenStart(string filename)
             }
 
             //update ip map
-            ipMap[record->IPaddress][record->username] = currentWorkingTime;
+            ipMap[record->IPaddress][record->username] = record->ipStamp;
 
             //update user map
-            userMap[record->username][record->IPaddress] = currentWorkingTime;
+            userMap[record->username][record->IPaddress] = record->userStamp;
 
         //check if alert is triggered
             //cout << "Checking for alert triggers" << endl;
@@ -448,22 +461,6 @@ void prewrittenStart(string filename)
             {
                 //cout << "Expiring data" << endl;
                 comp_node = pQueue.top().second;
-
-                /*
-                cout << "Node number " << comp_node->nodeNumber << endl;
-                cout << "currtime: " << toReadableTime(currentWorkingTime) << endl;
-                cout << "currtime: " << currentWorkingTime << endl;
-                if(comp_node->floodStamp != -1)
-                {
-                    cout << "flood stamptime: " << comp_node->floodStamp << endl;
-                    cout << "user stamptime: " << comp_node->userStamp << endl;
-                    cout << "ip stamptime: " << comp_node->ipStamp << endl; 
-                    cin.get();
-                    cout << "flood stamptime: " << toReadableTime(comp_node->floodStamp) << endl;
-                    cout << "user stamptime: " << toReadableTime(comp_node->userStamp) << endl;
-                    cout << "ip stamptime: " << toReadableTime(comp_node->ipStamp) << endl; 
-                }
-                */
 
                 //flood expire
                 if(currentWorkingTime >= comp_node->floodStamp && comp_node->floodStamp != -1)
@@ -540,10 +537,34 @@ void prewrittenStart(string filename)
                 }
                 
                 cerr << "ERROR: UNEXPECTED CONDITION MET IN DATA EXPIRATION CHECK. TERMINATING" << endl;
-                exit(0);
-
-                //pQueue.pop();
+                exit(0);   
             }
+
+            
+            //DEBUG
+            /*
+            if(lineNumber == 100)
+            {
+                cout << "Printing Pqueue snapshot" << endl;
+                ofstream outfile;
+                outfile.open("PQsnapshot_del.txt", ios::app);
+
+                outfile << "Priority queue at line number " << lineNumber << endl;
+                
+                while(!pQueue.empty())
+                {
+                    outfile << "--------------------------------------------" << endl;
+                    outfile << "Current time: " <<  toReadableTime(currentWorkingTime) << endl;
+                    outfile << "Name: " << pQueue.top().second->username << endl;
+                    outfile << "IP: " << pQueue.top().second->IPaddress << endl;
+                    outfile << "floodStamp: " << toReadableTime(pQueue.top().second->floodStamp) << endl;
+                    outfile << "userStamp: " << toReadableTime(pQueue.top().second->userStamp) << endl;
+                    outfile << "ipStamp: " << toReadableTime(pQueue.top().second->ipStamp) << endl;
+                    pQueue.pop(); 
+                }
+                outfile.close();
+            }
+            */
         }
         inputfile.close();
     }

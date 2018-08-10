@@ -151,20 +151,31 @@ TIME_TYPE toTimeType(string raw_line)
 
 string toReadableTime(TIME_TYPE integerTime)
 {
-	string readableTime = "20";
-	string intTime = to_string(integerTime);
-	string year = readableTime.append(intTime.substr(0, 2)); //YYYY
-	string month = reverseMonthMap[((integerTime % 10000000000) / 100000000)];
-	string day = intTime.substr(4,2);
-	string hours = intTime.substr(6,2);
-	string mins = intTime.substr(8,2);
-	string secs = intTime.substr(10,2);
+	if(integerTime == 0)
+	{
+		return "0";
+	}
+	else if (integerTime == -1)
+	{
+		return "-1";
+	}
+	else
+	{
+		string readableTime = "20";
+		string intTime = to_string(integerTime);
+		string year = readableTime.append(intTime.substr(0, 2)); //YYYY
+		string month = reverseMonthMap[((integerTime % 10000000000) / 100000000)];
+		string day = intTime.substr(4,2);
+		string hours = intTime.substr(6,2);
+		string mins = intTime.substr(8,2);
+		string secs = intTime.substr(10,2);
 
-	string date = month.append("/").append(day).append("/").append(year);// MM/DD/YYYY
-	string time = hours.append(":").append(mins).append(":").append(secs);// HH:MM:SS
-	readableTime = date.append(":").append(time);// MM/DD/YYYY:HH:MM:SS
+		string date = month.append("/").append(day).append("/").append(year);// MM/DD/YYYY
+		string time = hours.append(":").append(mins).append(":").append(secs);// HH:MM:SS
+		readableTime = date.append(":").append(time);// MM/DD/YYYY:HH:MM:SS
 
-	return readableTime;
+		return readableTime;
+	}
 }
 
 TIME_TYPE incrementTimeStamp(TIME_TYPE old_stamp, long int lookahead)
